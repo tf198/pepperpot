@@ -1,6 +1,6 @@
 <?php
 
-class Lieutenant {
+class Sergeant {
   static $base = null;
   
   static function autoload($class) {

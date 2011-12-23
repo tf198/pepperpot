@@ -1,8 +1,8 @@
 <?php
 $ts = microtime(true);
 
-require_once "classes/lieutenant.php";
-Lieutenant::register();
+require_once "classes/sergeant.php";
+Sergeant::register();
 
 $grunt = new Grunt();
 
