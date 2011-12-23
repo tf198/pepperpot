@@ -8,4 +8,4 @@ $grunt = new Grunt();
 
 $grunt->state('Package')->latest('openssh-server');
 
-printf("Executed in %dms using %dKb", (microtime(true)-$ts)*1000, memory_get_peak_usage()/1024);
+printf("Executed in %dms using %dKb\n", (microtime(true)-$ts)*1000, memory_get_peak_usage()/1024);
