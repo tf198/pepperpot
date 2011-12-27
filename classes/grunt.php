@@ -7,14 +7,24 @@ class Grunt {
   
   private $_components = array('task' => array(), 'state' => array());
   
-  function is_local() {
-    return false;
+  public $ip_address, $is_local, $username, $auth;
+  
+  /**
+  * @param string $ip_address 			system ip
+  * @param string $username 				username
+  * @param string|Crypt_RSA	$auth 	password or authentication key
+  */
+  function __construct($ip_address, $username, $auth) {
+  	$this->ip_address = $ip_address;
+  	$this->is_local = ($ip_address == '127.0.0.1');
+  	$this->username = $username;
+  	$this->auth = $auth;
   }
   
   /**
    * Instance based cache
-   * @param string $type class type
-   * @param string $name class subtype
+   * @param string $type 		class type
+   * @param string $name 		class subtype
    * @return object
    */
   function component($type, $name) {
