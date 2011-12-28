@@ -10,8 +10,8 @@ class Task_Base {
     foreach($this->packages as $package) $this->grunt->state('package')->installed($package);
   }
   
-  function handler() {
-    return $this;
+  static function handler($instance) {
+  	return new static($instance);
   }
 
 }

@@ -5,7 +5,7 @@ var_dump($phpseclib);
 set_include_path(get_include_path() . PATH_SEPARATOR . $phpseclib);
 require "Net/SSH2.php";
 
-class Task_SSH extends Task_Base {
+class Task_SSH extends Task_Cmd {
   
   private $ssh;
   
@@ -17,20 +17,13 @@ class Task_SSH extends Task_Base {
     }
   }
   
-  function run($cmd) {
-    $this->run_stdout($cmd, $elevate=false);
-    return 0;
-  }
-  
-  function run_stdout($cmd, $elevate=false, $expected=0) {
-  	$exec = $cmd;
-  	if($elevate) $exec = "sudo -n " . $exec;
-  	$exec .= "; echo __\$?__";
-  	$data = explode("\n", trim($this->ssh->exec($exec)));
-  	$code = array_pop($data);
-  	if(substr($code, -5) != "__{$expected}__") {
-  		throw new Task_Exception($cmd . ": " . implode(", ", $data));
+  function exec($cmd, &$output, &$ret) {
+  	$cmd .= '; echo __$?__';
+  	$output = explode("\n", trim($this->ssh->exec($cmd)));
+  	$result = array_pop($output);
+  	if(sscanf($result, "__%d__", $ret)!=1) {
+  		var_dump($result); 
+  		throw new Task_Exception("Failed to get return value");
   	}
-  	return $data; 
   }
 }

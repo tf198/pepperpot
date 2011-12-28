@@ -38,7 +38,11 @@ class Grunt {
   }
   
   function task($name) {
-    return $this->component('task', $name);
+  	if(!isset($this->_components['task'][$name])) {
+  		$klass = "Task_" . ucfirst($name);
+  		$this->_components['task'][$name] = call_user_func(array($klass, "handler"), $this);
+  	}
+    return $this->_components['task'][$name];
   }
   
   function state($name) {
