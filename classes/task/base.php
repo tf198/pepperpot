@@ -10,8 +10,11 @@ class Task_Base {
     foreach($this->packages as $package) $this->grunt->state('package')->installed($package);
   }
   
-  static function handler($instance) {
-  	return new static($instance);
+  /**
+  * In the future we can drop the $klass param and use static instead
+  */
+  static function handler($instance, $klass=null) {
+  	return new $klass($instance);
   }
 
 }
