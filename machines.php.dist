@@ -1,0 +1,5 @@
+<?
+return array(
+  'localhost' => array('local' => true),
+);
+?>
