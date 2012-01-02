@@ -21,20 +21,12 @@ class Grunt {
   	$this->auth = $auth;
   }
   
-  /**
-   * Instance based cache
-   * @param string $type 		class type
-   * @param string $name 		class subtype
-   * @return object
-   */
-  function component($type, $name) {
-    if(!isset($this->_components[$type][$name])) {
-      $klass = ucfirst($type) . "_" . ucfirst($name);
-      $obj = new $klass($this);
-      if($type=='task') $obj = $obj->handler();
-      $this->_components[$type][$name] = $obj;
-    }
-    return $this->_components[$type][$name];
+  private function _component($type, $name) {
+  	if(!isset($this->_components[$type][$name])) {
+  		$klass = $type . '_' . $name;
+  		$this->_components[$type][$name] = new $klass($this);
+  	}
+  	return $this->_components[$type][$name];
   }
   
   function task($name) {
@@ -46,7 +38,7 @@ class Grunt {
   }
   
   function state($name) {
-    return $this->component('state', $name);
+  	return $this->_component('State', $name);
   }
   
   function setState($state) {

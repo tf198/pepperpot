@@ -18,12 +18,14 @@ class Task_SSH extends Task_Cmd {
   }
   
   function exec($cmd, &$output, &$ret) {
-  	$cmd .= '; echo __$?__';
-  	$output = explode("\n", trim($this->ssh->exec($cmd)));
+  	$ret_cmd = $cmd . '; echo __$?__';
+  	$output = explode("\n", trim($this->ssh->exec($ret_cmd)));
   	$result = array_pop($output);
+  	var_dump($result);
   	if(sscanf($result, "__%d__", $ret)!=1) {
   		var_dump($result); 
   		throw new Task_Exception("Failed to get return value");
   	}
+  	if($ret!==0) throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
   }
 }

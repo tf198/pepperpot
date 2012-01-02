@@ -8,7 +8,7 @@ class Task_Apt extends Task_Base {
   }
   
   function update() {
-    $this->grunt->task('cmd')->run('sudo apt-get update');
+    $this->grunt->task('cmd')->run('apt-get update', true);
   }
   
   function install($name) {
@@ -18,22 +18,33 @@ class Task_Apt extends Task_Base {
   
   function available($name) {
     $output = $this->grunt->task('cmd')->run_stdout('apt-cache show ' . $name);
-    return "4.0";
+    foreach($output as $line) {
+    	if(substr($line, 0, 8) == 'Version:') {
+    		return trim(substr($line, 9));
+    	}
+    }
+    throw new Task_Exception("Failed to get availble version for '{$name}'");
   }
   
   function current($name) {
-    // use cached data unless $refresh
-    $this->packages();
-    return $this->_packages[$name];
+    $result = $this->dpkg($name);
+    return $result[$name];
   }
   
-  function packages() {
-    if($this->_packages == null) {
-      $dummy = array('coreutils' => '1.1', 'openssh-server' => '2.1', 'apt' => '3.0');
-      $data = $this->grunt->task('cmd')->run_stdout('dpkg -l', $dummy);
-      // TODO: parse the data
-      $this->_packages = $data;
-    }
-    return $this->_packages;
+  function dpkg($query=null) {
+    $cmd = "dpkg -l";
+    if($query) $cmd .= " " . $query;
+    $data = $this->grunt->task('cmd')->run_stdout($cmd);
+    $markers = explode('-', $data[4]);
+    for($i=0; $i<4; $i++) $markers[$i] = strlen($markers[$i])+1;
+
+    $result = array();
+    for($i=5, $c=count($data); $i<$c; $i++) {
+      $key = trim(substr($data[$i], $markers[0], $markers[1]));
+      $value = trim(substr($data[$i], $markers[0]+$markers[1], $markers[2]));
+      $result[$key] = $value;
+     }
+
+     return $result;
   }
 }
