@@ -2,7 +2,7 @@
 
 class Task_Pkg extends Task_Base {
   static function handler($grunt) {
-  	$os = $grunt->task('system')->os();
+  	$os = $grunt->task('system')->grain('os');
     if(!$os) throw new Task_Exception("No os information available");
     switch($os) {
       case 'ubuntu':
