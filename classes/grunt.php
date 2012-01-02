@@ -7,18 +7,21 @@ class Grunt {
   
   private $_components = array('task' => array(), 'state' => array());
   
-  public $ip_address, $is_local, $username, $auth;
+  public $params;
   
   /**
   * @param string $ip_address 			system ip
   * @param string $username 				username
   * @param string|Crypt_RSA	$auth 	password or authentication key
   */
-  function __construct($ip_address, $username, $auth) {
-  	$this->ip_address = $ip_address;
-  	$this->is_local = ($ip_address == '127.0.0.1');
-  	$this->username = $username;
-  	$this->auth = $auth;
+  function __construct($params) {
+  	$this->params = $params;
+  }
+  
+  function param($name, $default=null) {
+    if(isset($this->params[$name])) return $this->params[$name];
+    if($default!==null) return $default;
+    throw new Exception("Missing parameter: '{$name}'");
   }
   
   private function _component($type, $name) {
