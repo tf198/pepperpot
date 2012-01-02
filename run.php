@@ -6,6 +6,7 @@ if($argc<4) _fail("Not enough arguments");
 $identifier = $argv[1];
 $task = $argv[2];
 $method = $argv[3];
+$params = array_slice($argv, 4);
 
 $config = include("machines.php");
 
@@ -15,9 +16,14 @@ Sergeant::register();
 $i = 0;
 foreach($config as $name => $info) {
   if(preg_match("/{$identifier}/", $name)) {
-    $machine = new Grunt($info);
-    echo "{$name}: " . print_r($machine->task($task)->$method(), true) . "\n";
-    $i++;
+    try {
+      $machine = new Grunt($info);
+      $result = call_user_func_array(array($machine->task($task), $method), $params);
+      printf("%-20s: %s\n", $name, print_r($result, true));
+      $i++;
+    } catch(Exception $e) {
+      fputs(STDERR, "{$name}: {$e->getMessage()}\n");
+    }
   }
 }
 
