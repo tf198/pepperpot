@@ -1,9 +1,9 @@
 <?php
 
 class State_Base {
-  protected $grunt;
+  protected $minion;
   
-  function __construct($grunt) {
-    $this->grunt = $grunt;
+  function __construct($minion) {
+    $this->minion = $minion;
   }
 }

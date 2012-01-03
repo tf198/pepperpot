@@ -3,7 +3,7 @@
 /**
  * A system instance - ready to do your bidding
  */
-class Grunt {
+class Minion {
   
   private $_components = array('task' => array(), 'state' => array());
   
@@ -16,7 +16,7 @@ class Grunt {
   function __construct($params) {
   	$this->_cache['core'] = $params;
   	
-  	$this->os = $this->grain('system', 'os');
+  	$this->os = $this->speck('system', 'os');
   }
   
   /**
@@ -44,7 +44,7 @@ class Grunt {
   	$this->_cacheable[$task][] = $key;
   }
   
-  function grain($task, $func) {
+  function speck($task, $func) {
   	$cached = $this->get($task, $func);
   	if($cached!==null) return $cached;
   	$result = $this->task($task)->$func();

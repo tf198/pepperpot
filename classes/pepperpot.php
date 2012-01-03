@@ -1,6 +1,6 @@
 <?php
 
-class Sergeant {
+class PepperPot {
   static $base = null;
   
   static function autoload($class) {
@@ -10,6 +10,6 @@ class Sergeant {
   }
   
   static function register() {
-    spl_autoload_register('Sergeant::autoload');
+    spl_autoload_register('PepperPot::autoload');
   }
 }

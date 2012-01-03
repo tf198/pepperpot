@@ -10,14 +10,14 @@ $params = array_slice($argv, 4);
 
 $config = include("machines.php");
 
-require_once "classes/sergeant.php";
-Sergeant::register();
+require_once "classes/pepperpot.php";
+PepperPot::register();
 
 $i = 0;
 foreach($config as $name => $info) {
   if(preg_match("/{$identifier}/", $name)) {
     try {
-      $machine = new Grunt($info);
+      $machine = new Minion($info);
       $result = call_user_func_array(array($machine->task($task), $method), $params);
       printf("%-20s: %s\n", $name, print_r($result, true));
       $i++;

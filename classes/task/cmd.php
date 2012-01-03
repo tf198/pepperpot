@@ -28,7 +28,7 @@ class Task_Cmd extends Task_Base {
   }
   
   function _elevate($cmd) {
-  	if($this->grunt->os == 'windows') {
+  	if($this->minion->os == 'windows') {
   		return $cmd;
   	} else {
   		return "sudo -n " . $cmd;

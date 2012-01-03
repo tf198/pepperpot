@@ -1,13 +1,13 @@
 <?php
 
 class Task_Base {
-  protected $grunt;
+  protected $minion;
   protected $packages = array();
   
-  function __construct($grunt) {
-    $this->grunt = $grunt;
+  function __construct($minion) {
+    $this->minion = $minion;
     // check the required packages are installed
-    foreach($this->packages as $package) $this->grunt->state('package')->installed($package);
+    foreach($this->packages as $package) $this->minion->state('package')->installed($package);
   }
   
   /**

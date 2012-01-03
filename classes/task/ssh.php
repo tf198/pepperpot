@@ -8,11 +8,11 @@ class Task_SSH extends Task_Cmd {
   
   private $ssh;
   
-  function __construct($grunt) {
-    parent::__construct($grunt);
-    $this->ssh = new Net_SSH2($grunt->get('core', 'ip'));
-    if(!$this->ssh->login($grunt->get('core', 'username'), $grunt->get('core', 'auth'))) {
-    	throw new Task_Exception("Connection to {$grunt->get('core', 'ip')} failed");
+  function __construct($minion) {
+    parent::__construct($minion);
+    $this->ssh = new Net_SSH2($minion->get('core', 'ip'));
+    if(!$this->ssh->login($minion->get('core', 'username'), $minion->get('core', 'auth'))) {
+    	throw new Task_Exception("Connection to {$minion->get('core', 'ip')} failed");
     }
   }
   
