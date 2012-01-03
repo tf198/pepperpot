@@ -5,7 +5,7 @@
  */
 class Minion {
   
-  private $_components = array('task' => array(), 'state' => array());
+  public $_components = array('task' => array(), 'state' => array());
   
   private $_cache = array();
   private $_cacheable = array();
@@ -16,7 +16,7 @@ class Minion {
   function __construct($params) {
   	$this->_cache['core'] = $params;
   	
-  	$this->os = $this->speck('system.os');
+  	//$this->os = $this->speck('system.os');
   }
   
   /**

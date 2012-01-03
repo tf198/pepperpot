@@ -7,7 +7,7 @@ class Task_Apt extends Task_Pkg {
   }
   
   function install($name) {
-    $this->minion->task('cmd')->run('sudo apt-get -y install ' . $name);
+    $this->minion->task('cmd')->run('apt-get -y install ' . $name, true);
   }
   
   function available($name) {

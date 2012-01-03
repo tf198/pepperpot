@@ -28,7 +28,7 @@ class Task_Cmd extends Task_Base {
   }
   
   function _elevate($cmd) {
-  	if($this->minion->os == 'windows') {
+  	if($this->minion->speck('system.os') == 'windows') {
   		return $cmd;
   	} else {
   		return "sudo -n " . $cmd;
@@ -37,7 +37,7 @@ class Task_Cmd extends Task_Base {
   
   function system($cmd, &$ret) {
     $this->exec($cmd, $output, $ret);
-    return $output[count($output)-1];
+    return ($output) ? $output[count($output)-1] : '';
   }
   
   function exec($cmd, &$output, &$ret) {
@@ -46,7 +46,7 @@ class Task_Cmd extends Task_Base {
   }
   
   static function handler($instance) {
-  	if(!$instance->get('core', 'local')) return new Task_SSH($instance);
+  	if(!$instance->get('core.local')) return new Task_SSH($instance);
     return new Task_Cmd($instance);
   }
 }
