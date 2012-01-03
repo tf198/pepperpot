@@ -16,39 +16,42 @@ class Minion {
   function __construct($params) {
   	$this->_cache['core'] = $params;
   	
-  	$this->os = $this->speck('system', 'os');
+  	$this->os = $this->speck('system.os');
   }
   
   /**
   * Get data from the cache
-  * @param string $task 			owner task
-  * @param string $key 				item key
+ 	* @param string $key 				item key e.g. system.os
   * @return mixed 						data or null if no data available
   */
-  function get($task, $key) {
-  	if(isset($this->_cache[$task]) && isset($this->_cache[$task][$key])) return $this->_cache[$task][$key];
+  function get($key) {
+  	if(isset($this->_cache[$key])) return $this->_cache[$key];
   	return null;
   }
   
   /**
   * Set data in the cache
-  * @param string $task 			owner task
-  * @param string $key 				item key
+  * @param string $key 				item key e.g. system.os
   * @param mixed $value 			item
   * @param boolean $cacheable whether this value can be cached (default: false)
   */
-  function set($task, $key, $value, $cacheable=false) {
-  	$this->_cache[$task][$key] = $value;
-  	if(!$cacheable) return;
-  	if(!isset($this->_cacheable[$task])) $this->_cacheable[$task] = array();
-  	$this->_cacheable[$task][] = $key;
+  function set($key, $value, $cacheable=false) {
+  	$this->_cache[$key] = $value;
+  	if($cacheable) $this->_cacheable[] = $key;
   }
   
-  function speck($task, $func) {
-  	$cached = $this->get($task, $func);
+  /**
+  * Specks are cachable pieces of information tied to a minion
+  * They should only be used for static cacheable info
+  * @param string $key				item key e.g. system.os
+  * @return mixed							cached data
+  */
+  function speck($key) {
+  	$cached = $this->get($key);
   	if($cached!==null) return $cached;
+  	list($task, $func) = explode('.', $key, 2);
   	$result = $this->task($task)->$func();
-  	$this->set($task, $func, $result, true);
+  	$this->set($key, $result, true);
   	return $result;
   }
   

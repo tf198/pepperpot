@@ -5,12 +5,12 @@ class Task_Cmd extends Task_Base {
 	* Execute a command and return the return code
 	* @param string $cmd			command to execute
 	* @param boolean $elevate	whether to run as root (default: false)
-	* @return int							return code from command
+	* @param int $expected		expected return code (default: 0)
 	*/
-  function run($cmd, $elevate=false) {
+  function run($cmd, $elevate=false, $expected=0) {
     if($elevate) $cmd = $this->_elevate($cmd);
     $this->exec($cmd, $output, $ret);
-    return $ret;
+    if($ret != $expected) throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
   }
   
   /**

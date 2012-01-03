@@ -1,19 +1,13 @@
 <?php
 
-class Task_Apt extends Task_Base {
-  private $_packages = null;
+class Task_Apt extends Task_Pkg {
   
-  function __construct($instance) {
-    parent::__construct($instance);
-  }
-  
-  function update() {
+  function reload() {
     $this->minion->task('cmd')->run('apt-get update', true);
   }
   
   function install($name) {
-    $result = $this->minion->task('cmd')->run('sudo apt-get -y install ' . $name); 
-    $this->_packages = null;
+    $this->minion->task('cmd')->run('sudo apt-get -y install ' . $name);
   }
   
   function available($name) {
@@ -29,6 +23,10 @@ class Task_Apt extends Task_Base {
   function current($name) {
     $result = $this->dpkg($name);
     return $result[$name];
+  }
+  
+  function packages() {
+  	return $this->dpkg();
   }
   
   function dpkg($query=null) {
