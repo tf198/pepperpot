@@ -10,8 +10,14 @@ class Task_SSH extends Task_Cmd {
   
   function __construct($minion) {
     parent::__construct($minion);
-    $this->ssh = new Net_SSH2($minion->get('core', 'ip'));
-    if(!$this->ssh->login($minion->get('core', 'username'), $minion->get('core', 'auth'))) {
+    $this->ssh = new Net_SSH2($minion->get('core.ip'), $minion->get('core.port', 22));
+    $auth = $minion->get('core.authkey', false);
+    if($auth) {
+      // load the key
+    } else {
+      $auth = $minion->get('core.password');
+    }
+    if(!$this->ssh->login($minion->get('core.username'), $auth)) {
     	throw new Task_Exception("Connection to {$minion->get('core', 'ip')} failed");
     }
   }
@@ -24,5 +30,9 @@ class Task_SSH extends Task_Cmd {
   		var_dump($result); 
   		throw new Task_Exception("Failed to get return value");
   	}
+  }
+  
+  function copy($source, $dest, $elevate) {
+    
   }
 }
