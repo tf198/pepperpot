@@ -10,9 +10,9 @@ class Task_SSH extends Task_Cmd {
   
   function __construct($grunt) {
     parent::__construct($grunt);
-    $this->ssh = new Net_SSH2($grunt->param('ip'));
-    if(!$this->ssh->login($grunt->param('username'), $grunt->param('auth'))) {
-    	throw new Task_Exception("Connection to {$grunt->param('ip')} failed");
+    $this->ssh = new Net_SSH2($grunt->get('core', 'ip'));
+    if(!$this->ssh->login($grunt->get('core', 'username'), $grunt->get('core', 'auth'))) {
+    	throw new Task_Exception("Connection to {$grunt->get('core', 'ip')} failed");
     }
   }
   

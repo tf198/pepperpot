@@ -1,17 +1,38 @@
 <?php
 
 class Task_Cmd extends Task_Base {
+	/**
+	* Execute a command and return the return code
+	* @param string $cmd			command to execute
+	* @param boolean $elevate	whether to run as root (default: false)
+	* @return int							return code from command
+	*/
   function run($cmd, $elevate=false) {
-    if($elevate) $cmd = "sudo -n " . $cmd;
+    if($elevate) $cmd = $this->_elevate($cmd);
     $this->exec($cmd, $output, $ret);
     return $ret;
   }
   
+  /**
+  * Execute a command and return the output
+  * @param string $cmd			command to execute
+  * @param boolean $elevate	whether to run as root (default: false)
+  * @param int $expected		expected return code (default: 0)
+  * @return array						stdout lines
+  */
   function run_stdout($cmd, $elevate=false, $expected=0) {
-  	if($elevate) $cmd = "sudo -n " . $cmd;
+  	if($elevate) $cmd = $this->_elevate($cmd);
   	$this->exec($cmd, $output, $ret);
-    if($ret!==0) throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
+    if($ret !== $expected) throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
   	return $output;
+  }
+  
+  function _elevate($cmd) {
+  	if($this->grunt->os == 'windows') {
+  		return $cmd;
+  	} else {
+  		return "sudo -n " . $cmd;
+  	}
   }
   
   function system($cmd, &$ret) {
@@ -20,12 +41,12 @@ class Task_Cmd extends Task_Base {
   }
   
   function exec($cmd, &$output, &$ret) {
-  	$ret_cmd = $cmd . " 2>&1";
-  	exec($ret_cmd, $output, $ret);
+  	$cmd .= " 2>&1";
+  	exec($cmd, $output, $ret);
   }
   
   static function handler($instance) {
-  	if(!$instance->param('local', false)) return new Task_SSH($instance);
+  	if(!$instance->get('core', 'local')) return new Task_SSH($instance);
     return new Task_Cmd($instance);
   }
 }

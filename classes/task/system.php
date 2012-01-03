@@ -13,5 +13,14 @@ class Task_System extends Task_Base {
     
     return "unknown";
   }
+  
+  function kernel() {
+  	switch($this->grunt->os) {
+  		case "ubuntu":
+  			return $this->grunt->task('cmd')->system('uname -r', $ret);
+  		default:
+  			throw new Task_Exception("Unabled to determine kernel for {$this->grunt->os}");
+  	}
+  }
 }
 ?>

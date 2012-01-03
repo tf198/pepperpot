@@ -7,21 +7,49 @@ class Grunt {
   
   private $_components = array('task' => array(), 'state' => array());
   
-  public $params;
+  private $_cache = array();
+  private $_cacheable = array();
   
   /**
-  * @param string $ip_address 			system ip
-  * @param string $username 				username
-  * @param string|Crypt_RSA	$auth 	password or authentication key
+  * @param array $params 			core params
   */
   function __construct($params) {
-  	$this->params = $params;
+  	$this->_cache['core'] = $params;
+  	
+  	$this->os = $this->grain('system', 'os');
   }
   
-  function param($name, $default=null) {
-    if(isset($this->params[$name])) return $this->params[$name];
-    if($default!==null) return $default;
-    throw new Exception("Missing parameter: '{$name}'");
+  /**
+  * Get data from the cache
+  * @param string $task 			owner task
+  * @param string $key 				item key
+  * @return mixed 						data or null if no data available
+  */
+  function get($task, $key) {
+  	if(isset($this->_cache[$task]) && isset($this->_cache[$task][$key])) return $this->_cache[$task][$key];
+  	return null;
+  }
+  
+  /**
+  * Set data in the cache
+  * @param string $task 			owner task
+  * @param string $key 				item key
+  * @param mixed $value 			item
+  * @param boolean $cacheable whether this value can be cached (default: false)
+  */
+  function set($task, $key, $value, $cacheable=false) {
+  	$this->_cache[$task][$key] = $value;
+  	if(!$cacheable) return;
+  	if(!isset($this->_cacheable[$task])) $this->_cacheable[$task] = array();
+  	$this->_cacheable[$task][] = $key;
+  }
+  
+  function grain($task, $func) {
+  	$cached = $this->get($task, $func);
+  	if($cached!==null) return $cached;
+  	$result = $this->task($task)->$func();
+  	$this->set($task, $func, $result, true);
+  	return $result;
   }
   
   private function _component($type, $name) {
