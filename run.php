@@ -14,7 +14,7 @@ PepperPot::register();
 
 $i = 0;
 foreach($config as $name => $info) {
-  if(preg_match("/{$identifier}/", $name)) {
+  if(preg_match("/^{$identifier}\$/", $name)) {
     try {
       $machine = new Minion($info);
       $obj = $machine->task($task);
