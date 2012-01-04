@@ -8,7 +8,7 @@ state logic has been ported almost as-is but the underlying transport is complet
 The key difference between the two (beyond the language) is that SaltStack uses a
 master/slave setup with serialized code being sent between the two while
 
-.. _SaltStack http://saltstack.org
+.. _SaltStack: http://saltstack.org
 
 Warning
 =======
