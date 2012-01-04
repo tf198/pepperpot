@@ -4,7 +4,7 @@ $ts = microtime(true);
 if($argc<3) _fail("Not enough arguments");
 
 $identifier = $argv[1];
-list($task, $method) = explode('.', $argv[2], 2);
+list($type, $klass, $method) = explode('.', $argv[2], 3);
 $params = array_slice($argv, 3);
 
 $config = include("machines.php");
@@ -16,17 +16,19 @@ $i = 0;
 foreach($config as $name => $info) {
   if(preg_match("/^{$identifier}\$/", $name)) {
     try {
-      $machine = new Minion($info);
-      $obj = $machine->task($task);
+      $machine = new Minion($name, $info);
+      $obj = $machine->{$type}($klass);
       $r_c = new ReflectionClass($obj);
       $r_m = $r_c->getMethod($method);
       $result = $r_m->invokeArgs($obj, $params);
       
       //$result = call_user_func_array(array($machine->task($task), $method), $params);
-      printf("%-20s: %s\n", $name, print_r($result, true));
+      //printf("%-20s: %s\n", $name, print_r($result, true));
+      $machine->log("RESULT> " . print_r($result, true));
       $i++;
     } catch(Exception $e) {
-      fputs(STDERR, "{$name}: {$e->getMessage()}\n");
+      //fputs(STDERR, "{$name}: {$e->getMessage()}\n");
+      $machine->log("ERROR> " . $e->getMessage());
     }
   }
 }

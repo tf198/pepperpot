@@ -44,13 +44,18 @@ class Task_PHPSecLib extends Task_Cmd {
   
   function exec($cmd, &$output, &$ret) {
     if(!$this->ssh) $this->ssh = $this->_ssh();
+    
     $ret_cmd = $cmd . '; echo __$?__';
     $output = explode("\n", trim($this->ssh->exec($ret_cmd)));
+    // stderr is after result code
     $result = array_pop($output);
-    if (sscanf($result, "__%d__", $ret) != 1) {
-      var_dump($result);
-      throw new Task_Exception("Failed to get return value");
+    $stderr = array();
+    $ret = -1;
+    while(sscanf($result, "__%d__", $ret) != 1 && $output) {
+      $stderr[] = $result;
+      $result = array_pop($output);
     }
+    $this->minion->log("SSH> {$cmd} [{$ret}]");
   }
 
   /**
@@ -60,7 +65,7 @@ class Task_PHPSecLib extends Task_Cmd {
    * @param type $dest
    * @param type $elevate
    */
-  function copy_to($local, $remote, $elevate=false) {
+  function copy_to($local, $remote, $mode=0644, $elevate=false) {
     if(!$this->sftp) $this->sftp = $this->_sftp();
     if ($elevate) {
       throw new Task_Exception("Not yet implemented");
@@ -69,18 +74,22 @@ class Task_PHPSecLib extends Task_Cmd {
     }
     
     $data = file_get_contents($local);
-    $this->sftp->put($remote, $data);
+    if(!$this->sftp->put($remote, $data))
+            throw new Task_Exception("Failed to send file: '{$local}' > '{$remote}'");
+    return true;
   }
 
-  function copy_from($source, $dest, $elevate=false) {
+  function copy_from($remote, $local, $elevate=false) {
     if(!$this->sftp) $this->sftp = $this->_sftp();
-    $cmd = "cat \"$source\"";
-    if ($elevate)
-      $cmd = $this->_elevate($cmd);
-    $this->exec($cmd, $output, $ret);
-    if ($ret != 0)
-      throw new Task_Exception("Failed to retrieve file: " . $source);
-    file_put_contents($dest, implode(PHP_EOL, $output));
+    if ($elevate) {
+      throw new Task_Exception("Not yet implemented");
+    } else {
+      $source = $remote;
+    }
+    
+    if(!$this->sftp->get($source, $local))
+            throw new Task_Exception("Failed to receive file: '{$remote}' > '{$local}'");
+    return true;
   }
 
 }

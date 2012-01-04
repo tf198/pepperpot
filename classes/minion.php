@@ -8,11 +8,14 @@ class Minion {
   public $_components = array('task' => array(), 'state' => array());
   private $_cache = array();
   private $_cacheable = array();
+  
+  public $name;
 
   /**
    * @param array $params 			core params
    */
-  function __construct($params) {
+  function __construct($name, $params) {
+    $this->name = $name;
     foreach ($params as $key => $value)
       $this->_cache['core.' . $key] = $value;
   }
@@ -94,6 +97,10 @@ class Minion {
       }
     }
     return true;
+  }
+  
+  function log($message) {
+    fputs(STDERR, $this->name . ": " . $message . PHP_EOL);
   }
 
 }
