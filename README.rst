@@ -5,9 +5,6 @@ Pepperpot is a remote execution and configuration management library written in 
 based on the excellent python based SaltStack_.  Much of the task and
 state logic has been ported almost as-is but the underlying transport is completely different.
 
-The key difference between the two (beyond the language) is that SaltStack uses a
-master/slave setup with serialized code being sent between the two while
-
 .. _SaltStack: http://saltstack.org
 
 Warning
