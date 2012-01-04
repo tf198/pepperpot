@@ -27,6 +27,7 @@ class Task_SSH extends Task_Cmd {
       var_dump($result);
       throw new Task_Exception("Failed to get return value");
     }
+    $this->minion->log("SSH> {$cmd} [{$ret}]");
   }
   
   function copy_to($local, $remote, $create_mode=0644, $elevate=false) {
