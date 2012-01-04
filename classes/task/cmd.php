@@ -49,12 +49,25 @@ class Task_Cmd extends Task_Base {
     $cmd .= " 2>&1";
     exec($cmd, $output, $ret);
   }
+  
+  function copy_to($local, $remote, $elevate=false) {
+  	$cmd = "cp \"{$local}\" \"{$remote}\"";
+  	if($elevate) $cmd = $this->_elevate($cmd);
+  	$this->exec($cmd, $output, $ret);
+  	if($ret!=0) throw new Task_Exception("Failed to copy file {$local}");	
+  	return true;
+ 	}
+  
+  function copy_from($remote, $local, $elevate=false) {
+  	return $this->copy_to($remote, $local, $elevate);		
+  }
 
   static function handler($instance) {
   
-    if (!$instance->get('core.local', false))
+    if (!$instance->get('core.local', false)) {
       $klass = function_exists('ssh2_connect') ? "Task_SSH" : "Task_PHPSecLib";
       return new $klass($instance);
+    }
     return new Task_Cmd($instance);
   }
 
