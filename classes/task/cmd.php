@@ -11,7 +11,7 @@ class Task_Cmd extends Task_Base {
   function run($cmd, $elevate=false, $expected=0) {
     if ($elevate)
       $cmd = $this->_elevate($cmd);
-    $this->exec($cmd, $output, $ret);
+    $this->_exec($cmd, $output, $ret);
     if ($ret != $expected)
       throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
   }
@@ -26,12 +26,15 @@ class Task_Cmd extends Task_Base {
   function run_stdout($cmd, $elevate=false, $expected=0) {
     if ($elevate)
       $cmd = $this->_elevate($cmd);
-    $this->exec($cmd, $output, $ret);
+    $this->_exec($cmd, $output, $ret);
     if ($ret !== $expected)
       throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
     return $output;
   }
 
+	/**
+	* Elevate a cmd
+	*/
   function _elevate($cmd) {
     if ($this->minion->speck('system.os') == 'windows') {
       return $cmd;
@@ -40,26 +43,40 @@ class Task_Cmd extends Task_Base {
     }
   }
 
-  function system($cmd, &$ret) {
-    $this->exec($cmd, $output, $ret);
+	/**
+	* Emulate system() call using underlying transport
+	*/
+  function _system($cmd, &$ret) {
+    $this->_exec($cmd, $output, $ret);
     return ($output) ? $output[count($output) - 1] : '';
   }
 
-  function exec($cmd, &$output, &$ret) {
+	/**
+	* Emulate exec() call using underlying transport
+	*/
+  function _exec($cmd, &$output, &$ret) {
     $cmd .= " 2>&1";
     exec($cmd, $output, $ret);
+    $this->minion->log("CMD> {$cmd} [{$ret}]");
   }
   
   function copy_to($local, $remote, $elevate=false) {
   	$cmd = "cp \"{$local}\" \"{$remote}\"";
   	if($elevate) $cmd = $this->_elevate($cmd);
-  	$this->exec($cmd, $output, $ret);
+  	$this->_exec($cmd, $output, $ret);
   	if($ret!=0) throw new Task_Exception("Failed to copy file {$local}");	
   	return true;
  	}
   
   function copy_from($remote, $local, $elevate=false) {
   	return $this->copy_to($remote, $local, $elevate);		
+  }
+  
+  function latency() {
+  	$ts = microtime(true);
+  	$result = $this->minion->task('cmd')->_system("echo Latency test", $ret);
+  	if($result != 'Latency test') throw new Task_Exception("Unexpected output: {$result}");
+  	return microtime(true) - $ts;
   }
 
   static function handler($instance) {

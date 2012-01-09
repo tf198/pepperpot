@@ -21,8 +21,12 @@ class Task_Apt extends Task_Pkg {
   }
   
   function current($name) {
-    $result = $this->dpkg($name);
-    return $result[$name];
+  	try {
+    	$result = $this->dpkg($name);
+    	return $result[$name];
+   	} catch(Task_Exception $e) {
+   		return null;
+   	}
   }
   
   function packages() {

@@ -6,4 +6,9 @@ class Task_Test extends Task_Base {
 		var_dump($result);
 		return ($result[0] == 'root');
 	}
+	
+	function port() {
+		return $this->minion->get('core.port', 22);
+	}
+	
 }

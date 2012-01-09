@@ -6,16 +6,19 @@ class Task_SSH extends Task_Cmd {
   function __construct($minion) {
     parent::__construct($minion);
     $addr = $minion->get('core.ip');
+    $port = $minion->get('core.port', 22);
+    $user = $minion->get('core.username');
+    $minion->log("SSH> connect {$user}@{$addr} (port {$port})");
     
-    $this->ssh = ssh2_connect($addr, $minion->get('core.port', 22));
+    $this->ssh = ssh2_connect($addr, $port);
     if(!$this->ssh)
       throw new Task_Exception("Failed to connect to {$addr}");
     
-    if(!ssh2_auth_password($this->ssh, $minion->get('core.username'), $minion->get('core.password')))
+    if(!ssh2_auth_password($this->ssh, $user, $minion->get('core.password')))
       throw new Task_Exception("Incorrect username or password for {$addr}");
   }
   
-  function exec($cmd, &$output, &$ret) {
+  function _exec($cmd, &$output, &$ret) {
     $ret_cmd = $cmd . '; echo __$?__';
     
     $stream = ssh2_exec($this->ssh, $ret_cmd);
