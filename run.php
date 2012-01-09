@@ -17,6 +17,10 @@ foreach($config as $name => $info) {
   if(preg_match("/^{$identifier}\$/", $name)) {
     try {
       $machine = new Minion($name, $info);
+      
+      $cache_file = "cache/{$name}.dat";
+      if(file_exists($cache_file)) $machine->setCache(unserialize(file_get_contents($cache_file)));
+      
       $obj = $machine->{$type}($klass);
       $r_c = new ReflectionClass($obj);
       $r_m = $r_c->getMethod($method);
@@ -26,6 +30,11 @@ foreach($config as $name => $info) {
       //printf("%-20s: %s\n", $name, print_r($result, true));
       $machine->log("RESULT> " . print_r($result, true));
       $i++;
+
+      if(file_exists('cache')) {
+        $cache = $machine->getCacheable();
+        file_put_contents($cache_file, serialize($cache));
+      }
     } catch(Exception $e) {
       //fputs(STDERR, "{$name}: {$e->getMessage()}\n");
       $machine->log("ERROR> " . $e->getMessage());

@@ -26,8 +26,10 @@ class Minion {
    * @return mixed 						data or null if no data available
    */
   function get($key, $default=null) {
-    if (isset($this->_cache[$key]))
+    if (isset($this->_cache[$key])) {
+    	$this->log("GET> {$key} => " . print_r($this->_cache[$key], true));
       return $this->_cache[$key];
+    }
     if ($default !== null)
       return $default;
     throw new Task_Exception("Missing value for {$key}");
@@ -79,6 +81,17 @@ class Minion {
   function state($name) {
     return $this->_component('State', $name);
   }
+  
+  function getCacheable() {
+  	$result = array();
+  	foreach($this->_cacheable as $key) $result[$key] = $this->_cache[$key];
+  	return $result;
+  }
+  
+  function setCache($data) {
+  	$this->_cache = array_merge($this->_cache, $data);
+  	$this->_cacheable = array_merge($this->_cacheable, array_keys($data));
+  }
 
   function setState($state) {
     foreach ($state as $name => $handlers) {
@@ -100,7 +113,7 @@ class Minion {
   }
   
   function log($message) {
-    fputs(STDERR, $this->name . ": " . $message . PHP_EOL);
+    fprintf(STDERR, "%20s: %s\n", $this->name, $message);
   }
 
 }
