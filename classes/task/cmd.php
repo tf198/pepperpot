@@ -3,7 +3,7 @@
 class Task_Cmd extends Task_Base {
 
   /**
-   * Execute a command and return the return code
+   * Execute a command and return the return the last line of output
    * @param string $cmd			command to execute
    * @param boolean $elevate	whether to run as root (default: false)
    * @param int $expected		expected return code (default: 0)
@@ -14,6 +14,7 @@ class Task_Cmd extends Task_Base {
     $this->_exec($cmd, $output, $ret);
     if ($ret != $expected)
       throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
+    return ($output) ? $output[count($output) - 1] : '';
   }
 
   /**
@@ -79,7 +80,7 @@ class Task_Cmd extends Task_Base {
   	if($result != 'Latency test') throw new Task_Exception("Unexpected output: {$result}");
   	return microtime(true) - $ts;
   }
-
+  
   static function handler($instance) {
   
     if (!$instance->get('core.local', false)) {

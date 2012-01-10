@@ -48,11 +48,6 @@ class Minion {
     }
   }
   
-  // shortcut for switches
-  function os() {
-    return $this->speck('system.os');
-  }
-  
   /**
    * Remove a value from the cache manually
    * @param type $key 

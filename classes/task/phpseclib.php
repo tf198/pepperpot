@@ -25,7 +25,7 @@ class Task_PHPSecLib extends Task_Cmd {
   }
   
   function _ssh() {
-    require "Net/SSH2.php";
+    require_once "Net/SSH2.php";
     $ssh = new Net_SSH2($this->addr, $this->port);
     if (!$ssh->login($this->user, $this->auth)) {
       throw new Task_Exception("Incorrect username or password for {$this->addr}");
@@ -34,7 +34,7 @@ class Task_PHPSecLib extends Task_Cmd {
   }
   
   function _sftp() {
-    require "Net/SFTP.php";
+    require_once "Net/SFTP.php";
     $sftp = new Net_SFTP($this->addr, $this->port);
     if(!$sftp->login($this->user, $this->auth)) {
       throw new Task_Exception("Incorrect username or password for {$this->addr}");

@@ -12,4 +12,10 @@ class PepperPot {
   static function register() {
     spl_autoload_register('PepperPot::autoload');
   }
+  
+  static function cmd($cmd) {
+    $args = func_get_args();
+    $cmd = array_shift($args);
+    return $cmd . " " . implode(' ', array_map('escapeshellarg', $args));
+  }
 }
