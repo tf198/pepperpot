@@ -4,16 +4,6 @@ class Task_Network extends Task_Base {
   public $cache_time = array('interfaces' => 30, 'dns' => 30);
   
   function interfaces() {
-    switch($this->minion->os()) {
-      case 'ubuntu':
-        $data = $this->minion->task('cmd')->run_stdout("ip link");
-        return $this->_parse_ip_addr($data);
-      default:
-        throw new Task_Exception("Not implemented");
-    }
-  }
-  
-  function ips() {
     switch($this->minion->speck('system.os')) {
       case 'ubuntu':
         $data = $this->minion->task('cmd')->run_stdout("ip addr");
@@ -66,7 +56,7 @@ class Task_Network extends Task_Base {
         $second = explode(' ', $data[$i]);
         $iface = array(
             'name' => substr($first[1], 0, -1),
-            'type' => $second[4],
+            'type' => substr($second[4], 5),
             'mac' => $second[5],
             'brd' => $second[7],
         );
