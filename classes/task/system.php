@@ -1,5 +1,7 @@
 <?php
 class Task_System extends Task_Base {
+  public $cache_time = array('os' => 0, 'kernel' => 60, 'latency' => 60);
+  
   function os() {
     // windows
     $env = $this->minion->task('cmd')->_system('echo %OS%', $ret);
@@ -16,12 +18,12 @@ class Task_System extends Task_Base {
   }
   
   function kernel() {
-  	switch($this->minion->speck('system.os')) {
-  		case "ubuntu":
-  			return $this->minion->task('cmd')->_system('uname -r', $ret);
-  		default:
-  			throw new Task_Exception("Unabled to determine kernel");
-  	}
+    switch($this->minion->speck('system.os')) {
+      case "ubuntu":
+  	return $this->minion->task('cmd')->_system('uname -r', $ret);
+      default:
+        throw new Task_Exception("Unabled to determine kernel");
+    }
   }
   
   function time_offset() {
@@ -33,7 +35,7 @@ class Task_System extends Task_Base {
   function latency() {
   	$ts = microtime(true);
   	$result = $this->minion->task('cmd')->_system("echo Latency test", $ret);
-  	var_dump($ts, $result);
+        if($result!='Latency test') throw new Task_Exception("Unexpected response: " . $result);
   	return microtime(true) - $ts;
   }
 }

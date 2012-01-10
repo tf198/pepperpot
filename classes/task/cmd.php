@@ -18,6 +18,7 @@ class Task_Cmd extends Task_Base {
 
   /**
    * Execute a command and return the output
+   * throws an exception if return code isn't what is expected
    * @param string $cmd			command to execute
    * @param boolean $elevate	whether to run as root (default: false)
    * @param int $expected		expected return code (default: 0)

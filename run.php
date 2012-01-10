@@ -16,28 +16,30 @@ $i = 0;
 foreach($config as $name => $info) {
   if(preg_match("/^{$identifier}\$/", $name)) {
     try {
-      $machine = new Minion($name, $info);
-      
+      // some very basic caching
       $cache_file = "cache/{$name}.dat";
-      if(file_exists($cache_file)) $machine->setCache(unserialize(file_get_contents($cache_file)));
+      if(file_exists($cache_file)) {
+        $minion = unserialize(file_get_contents($cache_file));
+      } else {
+        $minion = new Minion($name, $info);
+      }
       
-      $obj = $machine->{$type}($klass);
+      $obj = $minion->{$type}($klass);
       $r_c = new ReflectionClass($obj);
       $r_m = $r_c->getMethod($method);
       $result = $r_m->invokeArgs($obj, $params);
       
       //$result = call_user_func_array(array($machine->task($task), $method), $params);
       //printf("%-20s: %s\n", $name, print_r($result, true));
-      $machine->log("RESULT> " . print_r($result, true));
+      $minion->log("RESULT> " . print_r($result, true));
       $i++;
 
       if(file_exists('cache')) {
-        $cache = $machine->getCacheable();
-        file_put_contents($cache_file, serialize($cache));
+        file_put_contents($cache_file, serialize($minion));
       }
     } catch(Exception $e) {
       //fputs(STDERR, "{$name}: {$e->getMessage()}\n");
-      $machine->log("ERROR> " . $e->getMessage());
+      $minion->log("ERROR> " . $e->getMessage());
     }
   }
 }

@@ -3,6 +3,7 @@
 class Task_Base {
   protected $minion;
   protected $packages = array();
+  public $cache_time = array();
   
   function __construct($minion) {
     $this->minion = $minion;
