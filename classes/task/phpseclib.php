@@ -16,9 +16,11 @@ class Task_PHPSecLib extends Task_Cmd {
     $this->addr = $minion->get('core.ip');
     $this->port = $minion->get('core.port', 22);
     $this->user = $minion->get('core.username');
-    $this->auth = $minion->get('core.authkey', false);
-    if ($this->auth) {
-      throw new Task_Exception("Not yet implemented");
+    $keyfile = $minion->get('core.keyfile', false);
+    if ($keyfile) {
+      require_once "Crypt/RSA.php";
+      $this->auth = new Crypt_RSA();
+      $this->auth->loadKey(file_get_contents($keyfile));
     } else {
       $this->auth = $minion->get('core.password');
     }
@@ -28,7 +30,7 @@ class Task_PHPSecLib extends Task_Cmd {
     require_once "Net/SSH2.php";
     $ssh = new Net_SSH2($this->addr, $this->port);
     if (!$ssh->login($this->user, $this->auth)) {
-      throw new Task_Exception("Incorrect username or password for {$this->addr}");
+      throw new Task_Exception("Authentication failed for {$this->addr}");
     }
     return $ssh;
   }
