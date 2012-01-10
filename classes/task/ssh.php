@@ -14,8 +14,14 @@ class Task_SSH extends Task_Cmd {
     if(!$this->ssh)
       throw new Task_Exception("Failed to connect to {$addr}");
     
-    if(!ssh2_auth_password($this->ssh, $user, $minion->get('core.password')))
-      throw new Task_Exception("Incorrect username or password for {$addr}");
+    $keyfile = $this->minion->get('core.keyfile');
+    if($keyfile) {
+      if(!ssh2_auth_pubkey_file($this->ssh, $user, $keyfile . ".pub", $keyfile))
+        throw new Task_Exception("Authentication failed for {$user}@{$addr}");
+    } else {
+      if(!ssh2_auth_password($this->ssh, $user, $minion->get('core.password')))
+        throw new Task_Exception("Incorrect username or password for {$addr}");
+    }
   }
   
   function _exec($cmd, &$output, &$ret) {
