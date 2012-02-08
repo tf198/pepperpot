@@ -1,5 +1,5 @@
 <?
-require('cmd_test.php');
+require_once('cmd_test.php');
 
 class Apt_Test extends Cmd_Test {
 	private $dpkg = array(
