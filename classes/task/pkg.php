@@ -1,7 +1,7 @@
 <?php
 
 abstract class Task_Pkg extends Task_Base {
-  static function handler($minion) {
+  static function handler($minion, $klass=null) {
   	switch($minion->speck('system.os')) {
       case 'ubuntu':
       case 'debian':
