@@ -81,7 +81,7 @@ class Task_Cmd extends Task_Base {
   	return microtime(true) - $ts;
   }
   
-  static function handler($instance) {
+  static function handler($instance, $klass=null) {
   
     if (!$instance->get('core.local', false)) {
       $klass = function_exists('ssh2_connect') ? "Task_SSH" : "Task_PHPSecLib";
