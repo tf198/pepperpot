@@ -73,15 +73,18 @@ class Task_System extends Task_Base {
     return $this->minion->task('cmd')->run('hostname');
   }
   
-  function time_offset() {
+  function time() {
     switch($this->minion->speck('system.kernel')) {
       case 'linux':
         $date = $this->minion->task('cmd')->run('date -R');
-        $ts = strtotime($date);
-        return time()-$ts;
+        return strtotime($date);
       default:
         throw new Task_NotImplemented();
     }
+  }
+  
+  function time_offset() {
+    return time() - $this->time();
   }
   
   function expire($key) {
