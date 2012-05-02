@@ -80,6 +80,15 @@ class Minion_Cache {
   }
   
   /**
+   * Remove all items
+   */
+  function clear() {
+  	foreach(array_keys($this->_cache) as $key) {
+  		if($this->_cache[$key][1] > self::CACHE_PRIVATE) unset($this->_cache[$key]);
+  	}
+  }
+  
+  /**
    * Get list of all keys
    */
   function keys() {
