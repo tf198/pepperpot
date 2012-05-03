@@ -103,8 +103,8 @@ class Task_System extends Task_Base {
 					$raw[$key] = substr(trim($value), 0, -3);
 				}
 				return array(
-						'total' => $raw['MemTotal'],
-						'free' => $raw['MemFree'],
+						'total' => $raw['MemTotal']/1024,
+						'free' => $raw['MemFree']/1024,
 				);
 			default:
 				throw new Task_NotImplemented;
@@ -136,6 +136,15 @@ class Task_System extends Task_Base {
 			case 'linux':
 				$date = $this->minion->task('cmd')->run('date -R');
 				return strtotime($date);
+			default:
+				throw new Task_NotImplemented();
+		}
+	}
+	
+	function uptime() {
+		switch($this->minion->speck('system.kernel')) {
+			case 'linux':
+				return $this->minion->task('cmd')->run('uptime');
 			default:
 				throw new Task_NotImplemented();
 		}
