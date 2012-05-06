@@ -38,9 +38,12 @@ class Minion {
       return $this->cache->get($key);
     }
     
-    list($task, $func) = explode('.', $key, 2);
+    $parts = explode(':', $key);
+    $accessor = array_shift($parts);
+    
+    list($task, $func) = explode('.', $accessor, 2);
     $t = $this->task($task);
-    $result = $t->$func();
+    $result = call_user_func_array(array($t, $func), $parts);
     $cache_time = isset($t->cache_time[$func]) ? $t->cache_time[$func] : Minion_Cache::CACHE_SESSION;
     $this->cache->set($key, $result, $cache_time);
     return $result;
