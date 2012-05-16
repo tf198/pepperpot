@@ -24,25 +24,29 @@ foreach($config as $name => $info) {
     try {
       // some very basic caching
       $cache_file = "cache/{$name}.dat";
+      $cache = null;
       if(file_exists($cache_file)) {
-        $minion = unserialize(file_get_contents($cache_file));
-      } else {
-        $minion = new Minion($name, $info);
+      	fprintf(STDERR, "%20s: %s\n", $name, "CACHE> loaded from {$cache_file}");
+        $cache = unserialize(file_get_contents($cache_file));
       }
       
+      // create the minion
+      $minion = new Minion($name, $info, $cache);
+      
+      // call the required function
       $obj = $minion->{$type}($klass);
       $r_c = new ReflectionClass($obj);
       $r_m = $r_c->getMethod($method);
       $result = $r_m->invokeArgs($obj, $params);
       
-      //$result = call_user_func_array(array($machine->task($task), $method), $params);
-      //printf("%-20s: %s\n", $name, print_r($result, true));
       $minion->log("RESULT> " . print_r($result, true));
       $i++;
 
-      if(file_exists('cache')) {
-        file_put_contents($cache_file, serialize($minion));
+      if(is_writable('cache')) {
+      	$minion->log("CACHE> written to {$cache_file}");
+      	file_put_contents($cache_file, serialize($minion->cache));
       }
+      
     } catch(Exception $e) {
       //fputs(STDERR, "{$name}: {$e->getMessage()}\n");
       $minion->log("ERROR> " . $e->getMessage());

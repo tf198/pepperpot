@@ -26,10 +26,9 @@ So in short, a fresh system with openssh-server installed and a user account - n
 
 Pepperpot can use one of two underlying SSH libraries:
 
-* libssh2_ (recommended) - the official PHP module with packages available for most systems
-e.g. `apt-get install libssh2-php
-* PHPSecLib_ - PHP only implementation, slow but may be your only option on windows.  Components need
-to be on the current PHP include path.
+* libssh2_ (recommended) - the official PHP module with packages available for most systems e.g. ``apt-get install libssh2-php``
+
+* PHPSecLib_ - PHP only implementation, slow but may be your only option on windows.  Components need to be on the current PHP include path.
 
 .. _libssh2: http://www.php.net/manual/en/book.ssh2.php
 .. _PHPSecLib: http://phpseclib.sourceforge.net
@@ -37,7 +36,7 @@ to be on the current PHP include path.
 Command line usage
 ==================
 
-Create a `machines.php` file::
+Create a ``machines.php`` file::
 
 	<?php
 	return array(
@@ -53,14 +52,39 @@ Invoke a predefined task on all targets::
 Invoke a task on a set of targets::
 
 	> php run.php test% task.system.hostname
+   
+If there is a folder called ``cache`` then ``run.php`` will persist cached values for the machines to this folder. 
 
 API usage
 =========
 ::
 
 	<?php
+   
+   // a basic autoloader - use your own if required
+   require_once "classes/pepperpot.php";
+   PepperPot::register();
+   
+   // Minions are configure via an array of basic info
 	$info = array('ip' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
 	$minion = new Minion("My Minion", $info);
 	
+   // speck calls a task and caches the result as appropriate
 	echo $minion->speck('system.hostname');
+   
+   /**
+   * optionally you can store the cache for a future run and pass it as the third argument to the constructor
+   * $cache = unserialize(file_get_contents('cache.dat'));
+   * $minion = new Minion($name, $info, $cache);
+   */
+   file_put_contents('cache.dat', serialize($minion->cache));
 	?>
+   
+Caching
+=======
+ 
+During a run all values are cached for a time set by the class containing the task depending on the type of information
+returned e.g. ``system.hostname`` and ``system.os`` are cached forever but ``system.uptime`` is always re-queried.  
+You can manually expire a cached value by calling ``$minion->cache->delete('system.hostname')`` in the event that you have modified something
+on the system.  As in the above example, the cache can be persisted between sessions which drastically reduces the number of commands
+that need to be executed.
