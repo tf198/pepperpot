@@ -57,6 +57,7 @@ Invoke a task on a set of targets::
 API usage
 =========
 ::
+
 	<?php
 	$info = array('ip' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
 	$minion = new Minion("My Minion", $info);
