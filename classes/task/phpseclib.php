@@ -72,14 +72,18 @@ class Task_PHPSecLib extends Task_Cmd {
   function copy_to($local, $remote, $mode=0644, $elevate=false) {
     if(!$this->sftp) $this->sftp = $this->_sftp();
     if ($elevate) {
-      throw new Task_Exception("Not yet implemented");
+      $dest = "/tmp/" . str_replace('/', '_', $remote);
     } else {
       $dest = $remote;
     }
     
     $data = file_get_contents($local);
-    if(!$this->sftp->put($remote, $data))
-            throw new Task_Exception("Failed to send file: '{$local}' > '{$remote}'");
+    if(!$this->sftp->put($dest, $data))
+            throw new Task_Exception("Failed to send file: '{$local}' > '{$dest}'");
+    $this->minion->log("SFTP> 'local:{$local}' > 'remote:{$dest}'");
+    if($elevate) {
+    	$this->run("mv \"{$dest}\" \"{$remote}\"", true);
+    }
     return true;
   }
 

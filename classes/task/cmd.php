@@ -89,5 +89,13 @@ class Task_Cmd extends Task_Base {
     }
     return new Task_Cmd($instance);
   }
+  
+  static function construct($cmd) {
+  	$args = func_get_args();
+  	for($i=0, $c=count($args); $i<$c; $i++) {
+  		if(substr($args[$i], 0, 1) != '-') $args[$i] = escapeshellarg($args[$i]);
+  	}
+  	return implode(' ', $args);
+  }
 
 }

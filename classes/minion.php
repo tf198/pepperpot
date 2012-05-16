@@ -34,7 +34,6 @@ class Minion {
    */
   function speck($key) {
     if($this->cache->contains($key)) {
-      $this->log("SPECK> {$key} (cached)");
       return $this->cache->get($key);
     }
     
