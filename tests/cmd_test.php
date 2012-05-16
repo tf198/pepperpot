@@ -49,7 +49,6 @@ class Mock_Cmd extends Task_Cmd {
 			$ret = 0;
 		}
 		$output = array_splice($this->data, 0, $i);
-		$ret = 0;
 	}
 	
 	public function endofstream() {

@@ -15,7 +15,7 @@ class Task_File extends Task_Base {
 	function md5sum($file, $elevate=false) {
 		try {
 			$output = $this->minion->task('cmd')->run("md5sum " . escapeshellarg($file), $elevate);
-			return substr($output[0], 0, 32);
+			return substr($output, 0, 32);
 		} catch(Task_Exception $e) {
 			return "";
 		}
