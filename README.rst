@@ -25,10 +25,10 @@ supported if required.
 So in short, a fresh system with openssh-server installed and a user account - nothing more!
 
 Pepperpot can use one of two underlying SSH libraries:
-1) libssh2_ (recommended) - the official PHP module with packages available for most systems
-e.g. `apt-get install libssh2-php
 
-2) PHPSecLib_ - PHP only implementation, slow but may be your only option on windows.  Components need
+* libssh2_ (recommended) - the official PHP module with packages available for most systems
+e.g. `apt-get install libssh2-php
+* PHPSecLib_ - PHP only implementation, slow but may be your only option on windows.  Components need
 to be on the current PHP include path.
 
 .. _libssh2: http://www.php.net/manual/en/book.ssh2.php
@@ -37,7 +37,8 @@ to be on the current PHP include path.
 Command line usage
 ==================
 
-Create a `machines.php` file
+Create a `machines.php` file::
+
 	<?php
 	return array(
 	  'localhost' => array('local' => true),
@@ -45,15 +46,17 @@ Create a `machines.php` file
 	);
 	?>
 	
-Invoke a predefined task on all targets
+Invoke a predefined task on all targets::
+
 	> php run.php % task.system.os
 	
-Invoke a task on a set of targets
+Invoke a task on a set of targets::
+
 	> php run.php test% task.system.hostname
 
 API usage
 =========
-
+::
 	<?php
 	$info = array('ip' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
 	$minion = new Minion("My Minion", $info);
