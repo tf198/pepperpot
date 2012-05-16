@@ -36,3 +36,4 @@ class Task_File extends Task_Base {
 	function stat($file, $attr) {
 		return $this->minion->task('cmd')->run("stat -c %{$attr} " . escapeshellarg($file));
 	}
+}

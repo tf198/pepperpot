@@ -4,6 +4,11 @@ require_once "cmd_test.php";
 
 class System_Test extends Cmd_Test {
 
+  function setUp() {
+  	parent::setUp();
+  	$this->cmd->load('ubuntu');
+  }
+	
   function testKernel() {
     $this->assertEquals('linux', $this->minion->speck('system.kernel'));
   }
@@ -13,16 +18,21 @@ class System_Test extends Cmd_Test {
   }
   
   function testKernelVersion() {
+  	$this->cmd->session = <<< EOF
+$ uname -r
+3.0.0
+EOF;
+  	
     $this->assertEquals('3.0.0', $this->minion->speck('system.kernel_version'));
   }
   
   function testCPUInfo() {
-    $data =<<< EOF
+    $this->cmd->session = <<< EOF
+$ cat /proc/cpuinfo
 vendor_id       : GenuineIntel
 cpu cores       : 2
-
 EOF;
-    $this->cmd->data['cat /proc/cpuinfo'] = explode("\n", $data);
+    
     $this->assertEquals(
             array(
                 'vendor_id' => 'GenuineIntel',
@@ -31,12 +41,21 @@ EOF;
   }
   
   function testHostname() {
-    $this->cmd->data['hostname'] = array('test_system');
+    $this->cmd->session = <<< EOF
+$ hostname
+test_system
+EOF;
+
     $this->assertEquals('test_system', $this->minion->speck('system.hostname'));
   }
   
   function testTimeOffset() {
-    $this->cmd->data['date -R'] = array(date('r'));
+  	$now = date('r');
+  	$this->cmd->session = <<< EOF
+$ date -R
+{$now}
+EOF;
+
     $this->assertEquals(0, $this->minion->speck('system.time_offset'));
   }
 
