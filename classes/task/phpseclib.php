@@ -29,6 +29,7 @@ class Task_PHPSecLib extends Task_Cmd {
   function _ssh() {
     require_once "Net/SSH2.php";
     $ssh = new Net_SSH2($this->addr, $this->port);
+    $this->minion->log("SSH> connect {$this->user}@{$this->addr} (port {$this->port})");
     if (!$ssh->login($this->user, $this->auth)) {
       throw new Task_Exception("Authentication failed for {$this->addr}");
     }
@@ -38,6 +39,7 @@ class Task_PHPSecLib extends Task_Cmd {
   function _sftp() {
     require_once "Net/SFTP.php";
     $sftp = new Net_SFTP($this->addr, $this->port);
+    $this->minion->log("SFTP> connect {$this->user}@{$this->addr} (port {$this->port})");
     if(!$sftp->login($this->user, $this->auth)) {
       throw new Task_Exception("Incorrect username or password for {$this->addr}");
     }
