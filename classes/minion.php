@@ -11,6 +11,9 @@ class Minion {
 
   public $cache;
   
+  // pluggable logger
+  static $logger = null;
+  
   /**
    * @param array $params 			core params
    */
@@ -87,8 +90,8 @@ class Minion {
     return true;
   }
   
-  function log($message) {
-    fprintf(STDERR, "%20s: %s\n", $this->name, $message);
+  function log($message, $level=LOG_INFO) {
+  	self::$logger && self::$logger->add($level, $message);
   }
 
 }
