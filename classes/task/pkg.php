@@ -3,7 +3,7 @@
 abstract class Task_Pkg extends Task_Base {
 
   static function handler($minion, $klass=null) {
-    switch($minion->speck('system.os')) {
+    switch($minion->speck('task.system.os')) {
       case 'ubuntu':
       case 'debian':
         return new Task_Apt($minion);

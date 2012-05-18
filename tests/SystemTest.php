@@ -10,11 +10,11 @@ class System_Test extends Cmd_Test {
   }
 	
   function testKernel() {
-    $this->assertEquals('linux', $this->minion->speck('system.kernel'));
+    $this->assertEquals('linux', $this->minion->speck('task.system.kernel'));
   }
 
   function testOS() {
-    $this->assertEquals('ubuntu', $this->minion->speck('system.os'));
+    $this->assertEquals('ubuntu', $this->minion->speck('task.system.os'));
   }
   
   function testKernelVersion() {
@@ -23,7 +23,7 @@ $ uname -r
 3.0.0
 EOF;
   	
-    $this->assertEquals('3.0.0', $this->minion->speck('system.kernel_version'));
+    $this->assertEquals('3.0.0', $this->minion->speck('task.system.kernel_version'));
   }
   
   function testCPUInfo() {
@@ -37,7 +37,7 @@ EOF;
             array(
                 'vendor_id' => 'GenuineIntel',
                 'cpu cores' => '2',
-            ), $this->minion->speck('system.cpuinfo'));
+            ), $this->minion->speck('task.system.cpuinfo'));
   }
   
   function testHostname() {
@@ -46,7 +46,7 @@ $ hostname
 test_system
 EOF;
 
-    $this->assertEquals('test_system', $this->minion->speck('system.hostname'));
+    $this->assertEquals('test_system', $this->minion->speck('task.system.hostname'));
   }
   
   function testTimeOffset() {
@@ -56,7 +56,7 @@ $ date -R
 {$now}
 EOF;
 
-    $this->assertEquals(0, $this->minion->speck('system.time_offset'));
+    $this->assertEquals(0, $this->minion->speck('task.system.time_offset'));
   }
 
 }

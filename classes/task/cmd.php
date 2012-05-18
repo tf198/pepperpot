@@ -38,7 +38,7 @@ class Task_Cmd extends Task_Base {
 	* Elevate a cmd
 	*/
   function elevate($cmd) {
-    if ($this->minion->speck('system.os') == 'windows') {
+    if ($this->minion->speck('task.system.os') == 'windows') {
       return $cmd;
     } else {
       return "sudo -n " . $cmd;
@@ -49,7 +49,7 @@ class Task_Cmd extends Task_Base {
 	* Emulate system() call using underlying transport
 	*/
   function system($cmd, &$ret) {
-    $this->_exec($cmd, $output, $ret);
+    $this->exec($cmd, $output, $ret);
     return ($output) ? $output[count($output) - 1] : '';
   }
 

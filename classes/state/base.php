@@ -6,4 +6,8 @@ class State_Base {
   function __construct($minion) {
     $this->minion = $minion;
   }
+  
+  public static function handler($instance, $klass=null) {
+  	return new $klass($instance);
+  }
 }

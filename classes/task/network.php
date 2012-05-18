@@ -4,7 +4,7 @@ class Task_Network extends Task_Base {
   public $cache_time = array('raw' => Minion_Cache::CACHE_PRIVATE, 'dns' => Minion_Cache::CACHE_HOUR);
   
   function raw() {
-    switch($this->minion->speck('system.os')) {
+    switch($this->minion->speck('task.system.os')) {
       case 'ubuntu':
         $data = $this->minion->task('cmd')->run_stdout("ip addr");
         return $this->_parse_ip_addr($data);
@@ -14,7 +14,7 @@ class Task_Network extends Task_Base {
   }
   
   function interfaces() {
-    $all = $this->minion->speck('network.raw');
+    $all = $this->minion->speck('task.network.raw');
     $result = array();
     foreach($all as $key=>$value) {
       $result[$key] = $value['mac'];
@@ -23,7 +23,7 @@ class Task_Network extends Task_Base {
   }
   
   function iface($name) {
-    $interfaces = $this->minion->speck('network.raw');
+    $interfaces = $this->minion->speck('task.network.raw');
     if(!isset($interfaces[$name])) throw new Task_Exception("No such interface: {$name}");
     return $interfaces[$name];
   }
@@ -34,7 +34,7 @@ class Task_Network extends Task_Base {
   }
   
   function dns_servers() {
-    switch($this->minion->speck('system.kernel')) {
+    switch($this->minion->speck('task.system.kernel')) {
       case 'linux':
         $data = $this->minion->task('cmd')->run_stdout('cat /etc/resolv.conf');
         $result = array();

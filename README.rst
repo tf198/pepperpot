@@ -69,8 +69,8 @@ API usage
 	$info = array('ip' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
 	$minion = new Minion("My Minion", $info);
 	
-   // speck calls a task and caches the result as appropriate
-	echo $minion->speck('system.hostname');
+   // speck calls a component and caches the result as appropriate
+	echo $minion->speck('task.system.hostname');
    
    /**
    * optionally you can store the cache for a future run and pass it as the third argument to the constructor
@@ -83,8 +83,24 @@ API usage
 Caching
 =======
  
-During a run all values are cached for a time set by the class containing the task depending on the type of information
-returned e.g. ``system.hostname`` and ``system.os`` are cached forever but ``system.uptime`` is always re-queried.  
-You can manually expire a cached value by calling ``$minion->cache->delete('system.hostname')`` in the event that you have modified something
+During a run all values are cached for a time set by the class containing the component depending on the type of information
+returned e.g. ``task.system.hostname`` and ``task.system.os`` are cached forever but ``task.system.uptime`` is always re-queried.  
+You can manually expire a cached value by calling ``$minion->cache->delete('task.system.hostname')`` in the event that you have modified something
 on the system.  As in the above example, the cache can be persisted between sessions which drastically reduces the number of commands
 that need to be executed.
+
+Tasks and states should take full advantage of the caching system for pre-requisites.
+
+Tasks
+=====
+
+Tasks are low level system interactions that can either query the system for a piece of information or perform one small task.  
+Typically a Task class will concern itself with one or two binaries on the system e.g. apt, upstart and abstract the key functions of that binary.
+
+States
+======
+
+States are a higher level concept that define a particular state for the machine and perform any actions required to get the system into that condition.
+For example ``state.service.started::apache2`` will first check whether the apache2 service is running, and start it if not.
+
+

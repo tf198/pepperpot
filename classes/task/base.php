@@ -17,5 +17,5 @@ class Task_Base {
   static function handler($instance, $klass=null) {
   	return new $klass($instance);
   }
-
+  
 }

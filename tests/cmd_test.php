@@ -21,8 +21,8 @@ class Mock_Cmd extends Task_Cmd {
 	static $machines = array(
 			'blank' => array(),
 			'ubuntu' => array(
-					'system.os' => array('ubuntu', -1),
-					'system.kernel' => array('linux', -1),
+					'task.system.os' => array('ubuntu', -1),
+					'task.system.kernel' => array('linux', -1),
 					),
 			);
 	

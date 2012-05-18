@@ -6,8 +6,8 @@ $ts = microtime(true);
 if($argc<3) _fail("Not enough arguments");
 
 $identifier = $argv[1];
-list($type, $klass, $method) = explode('.', $argv[2], 3);
-$params = array_slice($argv, 3);
+//list($type, $klass, $method) = explode('.', $argv[2], 3);
+//$params = array_slice($argv, 3);
 
 if(!file_exists(MACHINES)) _fail("Missing config file: " . MACHINES);
 
@@ -16,6 +16,10 @@ $config = include(MACHINES);
 require_once "classes/pepperpot.php";
 PepperPot::register();
 
+// set up logging
+Minion::$logger = new MinionLogger();
+
+// allow wildcards in identifier
 $identifier = str_replace('%', '.*', $identifier);
 
 $i = 0;
@@ -27,17 +31,19 @@ foreach($config as $name => $info) {
       $cache = null;
       if(file_exists($cache_file)) {
       	fprintf(STDERR, "%20s: %s\n", $name, "CACHE> loaded from {$cache_file}");
-        $cache = unserialize(file_get_contents($cache_file));
+      	$cache = unserialize(file_get_contents($cache_file));
       }
       
       // create the minion
       $minion = new Minion($name, $info, $cache);
-      
+      /*
       // call the required function
       $obj = $minion->{$type}($klass);
       $r_c = new ReflectionClass($obj);
       $r_m = $r_c->getMethod($method);
       $result = $r_m->invokeArgs($obj, $params);
+     */
+      $result = $minion->speck($argv[2]);
       
       $minion->log("RESULT> " . print_r($result, true));
       $i++;
@@ -61,5 +67,11 @@ function _fail($message, $code=1) {
   fputs(STDERR, $message . "\n");
   fputs(STDERR, "usage: php {$argv[0]} <identifier> <type.task.method> [argument] ...\n");
   exit($code);
+}
+
+class MinionLogger {
+	public function add($level, $message) {
+		fputs(STDERR, $message . "\n");
+	}
 }
 ?>

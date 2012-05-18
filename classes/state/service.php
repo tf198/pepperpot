@@ -5,7 +5,13 @@
  */
 class State_Service extends State_Base {
   function running($name) {
-    $current = $this->minion->task('probe')->get('ps', $name);
-    return true;
+  	$service = $this->minion->task('service');
+  	
+    if($service->status($name)) {
+    	$this->minion->log("Service {$name} already running");
+    } else {
+    	$service->start($name);
+    	$this->minion->log("Service {$name} started");
+    }
   }
 }

@@ -12,12 +12,12 @@ class Task_System extends Task_Base {
 		);
 
 	function os() {
-		if($this->minion->speck('system.kernel')=='windows_nt') return 'windows';
+		if($this->minion->speck('task.system.kernel')=='windows_nt') return 'windows';
 
 		// ubuntu - a bit tricky actually
-		$this->minion->task('cmd')->_system('test -f /etc/issue.net', $ret);
+		$this->minion->task('cmd')->system('test -f /etc/issue.net', $ret);
 		if($ret==0) {
-			$version = $this->minion->task('cmd')->_system('cat /etc/issue.net', $ret);
+			$version = $this->minion->task('cmd')->run('cat /etc/issue.net');
 			if(substr($version, 0, 6) == 'Ubuntu') return 'ubuntu';
 		}
 
@@ -32,7 +32,7 @@ class Task_System extends Task_Base {
 	}
 
 	function kernel_version() {
-		switch($this->minion->speck('system.kernel')) {
+		switch($this->minion->speck('task.system.kernel')) {
 			case 'linux':
 				return $this->minion->task('cmd')->run('uname -r');
 			case 'windows_nt':
@@ -45,7 +45,7 @@ class Task_System extends Task_Base {
 	}
 
 	function cpuinfo() {
-		switch($this->minion->speck('system.kernel')) {
+		switch($this->minion->speck('task.system.kernel')) {
 			case 'linux':
 				$data = $this->minion->task('cmd')->run_stdout('cat /proc/cpuinfo');
 				$raw = $this->_parse_keypairs($data, ':');
@@ -73,7 +73,7 @@ class Task_System extends Task_Base {
 	
 	function cpu() {
 		$raw = $this->cpuinfo();
-		switch($this->minion->speck('system.kernel')) {
+		switch($this->minion->speck('task.system.kernel')) {
 			case 'linux':
 				return array(
 						'vendor' => $raw['vendor_id'],
@@ -94,7 +94,7 @@ class Task_System extends Task_Base {
 	}
 	
 	function meminfo() {
-		switch($this->minion->speck('system.kernel')) {
+		switch($this->minion->speck('task.system.kernel')) {
 			case 'linux':
 				$data = $this->minion->task('cmd')->run_stdout('head -n 5 /proc/meminfo');
 				$raw = array();
@@ -132,7 +132,7 @@ class Task_System extends Task_Base {
 	}
 
 	function time() {
-		switch($this->minion->speck('system.kernel')) {
+		switch($this->minion->speck('task.system.kernel')) {
 			case 'linux':
 				$date = $this->minion->task('cmd')->run('date -R');
 				return strtotime($date);
@@ -142,12 +142,15 @@ class Task_System extends Task_Base {
 	}
 	
 	function uptime() {
-		switch($this->minion->speck('system.kernel')) {
-			case 'linux':
-				return $this->minion->task('cmd')->run('uptime');
-			default:
-				throw new Task_NotImplemented();
+		$data = $this->minion->task('cmd')->run('uptime');
+		if(!preg_match('/up\s+([0-9\:]+),\s+(\d+) users?,\s+load average: ([0-9\.]+), ([0-9\.]+), ([0-9\.]+)$/', $data, $matches)) {
+			throw new Task_Exception("Failed to parse uptime");
 		}
+		return array(
+				'up' => $matches[1],
+				'users' => $matches[2],
+				'load' => array_slice($matches, 3),
+				);
 	}
 
 	function time_offset() {
@@ -163,11 +166,20 @@ class Task_System extends Task_Base {
 	 */
 	function info() {
 		return array(
-				'kernel' => $this->minion->speck('system.kernel'),
-				'os' => $this->minion->speck('system.os'),
-				'cpu' => $this->minion->speck('system.cpu'),
-				'memory' => $this->minion->speck('system.memory'),
+				'kernel' => $this->minion->speck('task.system.kernel'),
+				'os' => $this->minion->speck('task.system.os'),
+				'cpu' => $this->minion->speck('task.system.cpu'),
+				'memory' => $this->minion->speck('task.system.memory'),
 		);
+	}
+	
+	function ps($name) {
+		$this->minion->task('cmd')->exec('ps -C ' . escapeshellarg($name), $output, $ret);
+		$result = array();
+		for($i=1, $c=count($output); $i<$c; $i++) {
+			$result[] = (int)$output[$i];
+		}
+		return $result;
 	}
 }
 ?>
