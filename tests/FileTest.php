@@ -1,7 +1,7 @@
 <?php
 require_once('cmd_test.php');
 
-class File_Test extends Cmd_Test {
+class TaskFileTest extends Cmd_Test {
 	
 	function setUp() {
 		parent::setUp();

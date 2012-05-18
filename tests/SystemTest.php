@@ -2,7 +2,7 @@
 
 require_once "cmd_test.php";
 
-class System_Test extends Cmd_Test {
+class TaskSystemTest extends Cmd_Test {
 
   function setUp() {
   	parent::setUp();
