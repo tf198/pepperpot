@@ -10,8 +10,8 @@ class Task_Cmd extends Task_Base {
    */
   function run($cmd, $elevate=false, $expected=0) {
     if ($elevate)
-      $cmd = $this->_elevate($cmd);
-    $this->_exec($cmd, $output, $ret);
+      $cmd = $this->elevate($cmd);
+    $this->exec($cmd, $output, $ret);
     if ($ret != $expected)
       throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
     return ($output) ? $output[count($output) - 1] : '';
@@ -27,8 +27,8 @@ class Task_Cmd extends Task_Base {
    */
   function run_stdout($cmd, $elevate=false, $expected=0) {
     if ($elevate)
-      $cmd = $this->_elevate($cmd);
-    $this->_exec($cmd, $output, $ret);
+      $cmd = $this->elevate($cmd);
+    $this->exec($cmd, $output, $ret);
     if ($ret !== $expected)
       throw new Task_Exception("Cmd failed '{$cmd}': " . implode(', ', $output));
     return $output;
@@ -37,7 +37,7 @@ class Task_Cmd extends Task_Base {
 	/**
 	* Elevate a cmd
 	*/
-  function _elevate($cmd) {
+  function elevate($cmd) {
     if ($this->minion->speck('system.os') == 'windows') {
       return $cmd;
     } else {
@@ -48,7 +48,7 @@ class Task_Cmd extends Task_Base {
 	/**
 	* Emulate system() call using underlying transport
 	*/
-  function _system($cmd, &$ret) {
+  function system($cmd, &$ret) {
     $this->_exec($cmd, $output, $ret);
     return ($output) ? $output[count($output) - 1] : '';
   }
@@ -56,7 +56,7 @@ class Task_Cmd extends Task_Base {
 	/**
 	* Emulate exec() call using underlying transport
 	*/
-  function _exec($cmd, &$output, &$ret) {
+  function exec($cmd, &$output, &$ret) {
     $cmd .= " 2>&1";
     exec($cmd, $output, $ret);
     $this->minion->log("CMD> {$cmd} [{$ret}]");

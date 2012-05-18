@@ -46,7 +46,7 @@ class Task_PHPSecLib extends Task_Cmd {
     return $sftp;
   }
   
-  function _exec($cmd, &$output, &$ret) {
+  function exec($cmd, &$output, &$ret) {
     if(!$this->ssh) $this->ssh = $this->_ssh();
     
     $ret_cmd = $cmd . '; echo __$?__';

@@ -26,7 +26,7 @@ class Mock_Cmd extends Task_Cmd {
 					),
 			);
 	
-	function _exec($cmd, &$output, &$ret) {
+	function exec($cmd, &$output, &$ret) {
 		// verify that the correct command has been passed
 		$expected = array_shift($this->data);
 		

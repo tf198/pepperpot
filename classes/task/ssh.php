@@ -24,7 +24,7 @@ class Task_SSH extends Task_Cmd {
     }
   }
   
-  function _exec($cmd, &$output, &$ret) {
+  function exec($cmd, &$output, &$ret) {
     $ret_cmd = $cmd . '; echo __$?__';
     
     $stream = ssh2_exec($this->ssh, $ret_cmd);
