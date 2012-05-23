@@ -77,7 +77,7 @@ class Minion {
    * @return mixed
    */
   function dispatch($uri) {
-  	list($task, $method, $params) = $this->_parse_uri($uri);
+  	list($task, $method, $params) = self::parse_uri($uri);
   	$result = call_user_func_array(array($this->task($task), $method), $params);
   	
   	return $result;
