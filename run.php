@@ -31,9 +31,9 @@ foreach($config as $name => $info) {
       $cache_file = "cache/{$name}.json";
       $cache = null;
       if(file_exists($cache_file)) {
+      	$data = json_decode(file_get_contents($cache_file), true);
+      	$cache = new Minion_Cache($data);
       	fprintf(STDERR, "%20s: %s\n", $name, "CACHE> loaded from {$cache_file}");
-      	$cache = new Minion_Cache();
-      	$cache->_cache = json_decode(file_get_contents($cache_file), true);
       }
       
       // create the minion
@@ -45,7 +45,7 @@ foreach($config as $name => $info) {
 
       if(is_writable('cache')) {
       	$minion->cache->clean();
-      	file_put_contents($cache_file, json_encode($minion->cache->_cache));
+      	file_put_contents($cache_file, json_encode($minion->cache->get_data()));
       	$minion->log("CACHE> written to {$cache_file}");
       }
       

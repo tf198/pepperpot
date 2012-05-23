@@ -47,7 +47,7 @@ class Minion {
   function get($key, $default=null) {
     $value = $this->cache->get($key, $default);
     $filtered = ($key!='config.password') ? $value : '********';
-    $this->log("GET> {$key} = {$filtered}");
+    $this->log("GET> {$key} = " . var_export($value, true));
     return $value;
   }
   

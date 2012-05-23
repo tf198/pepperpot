@@ -59,7 +59,7 @@ class Task_Cmd extends Task_Base {
     	return $cmd;
     } else {
     	$sudo = "sudo -n ";
-    	if(is_string($user)) $sudo .= "-u " . escapeshellcmd($user) . " ";
+    	if(is_string($user) && $user!='root') $sudo .= "-u " . escapeshellcmd($user) . " ";
       	return $sudo . $cmd;
     }
   }
@@ -86,7 +86,7 @@ class Task_Cmd extends Task_Base {
   	return stat($file);
   }
   
-  function copy_to($local, $remote, $elevate=false) {
+  function copy_to($local, $remote, $create_mode, $elevate=false) {
   	$cmd = "cp \"{$local}\" \"{$remote}\"";
   	if($elevate) $cmd = $this->_elevate($cmd);
   	$this->_exec($cmd, $output, $ret);

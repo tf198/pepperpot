@@ -111,9 +111,9 @@ class Task_System extends Task_Base {
 		}
 	}
 	
-	function memory() {
+	function memory($item='total') {
 		$data = $this->meminfo();
-		return $data['total'];
+		return $data[$item];
 	}
 
 	function _parse_keypairs($data, $sep='=') {

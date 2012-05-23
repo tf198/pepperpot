@@ -33,7 +33,6 @@ class Task_SSH extends Task_Cmd {
     $output = explode("\n", trim(stream_get_contents($stream)));
     $result = array_pop($output);
     if (sscanf($result, "__%d__", $ret) != 1) {
-      var_dump($result);
       throw new Task_Exception("Failed to get return value");
     }
     $this->minion->log("SSH> {$cmd} [{$ret}]");

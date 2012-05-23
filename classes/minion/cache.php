@@ -9,10 +9,11 @@ class Minion_Cache {
   const CACHE_DAY = 86400;
   const CACHE_INFINITE = 0;
   
-  public $_cache = array();
+  public $_cache;
   
-  function __construct() {
+  function __construct($data=array()) {
     $this->now = time();
+    $this->_cache = $data;
   }
   
   /**
@@ -69,13 +70,14 @@ class Minion_Cache {
   
   /**
    * Remove expired items
+   * Retains active, CACHE_PRIVATE and CACHE_INFINITE items
    */
   function clean() {
     $now = time();
     foreach($this->_cache as $key => $value) {
-      if($value[1]<0 || ($value[1] > 0 && $value[1]<$now)) {
-        unset($this->_cache[$key]);
-      }
+    	if($value[1] == self::CACHE_PRIVATE) continue;
+    	if($value[1] == self::CACHE_SESSION) unset($this->_cache[$key]);
+	    if($value[1] > 0 && $value[1] < $now) unset($this->_cache[$key]);
     }
   }
   
@@ -84,8 +86,20 @@ class Minion_Cache {
    */
   function clear() {
   	foreach(array_keys($this->_cache) as $key) {
-  		if($this->_cache[$key][1] > self::CACHE_PRIVATE) unset($this->_cache[$key]);
+  		if($this->_cache[$key][1] != self::CACHE_PRIVATE) unset($this->_cache[$key]);
   	}
+  }
+  
+  /**
+   * Get a copy of the cache with all the CACHE_PRIVATE data removed
+   * @return	array
+   */
+  function get_data() {
+  	$result = array();
+  	foreach($this->_cache as $key=>$value) {
+  		if($value[1] != self::CACHE_PRIVATE) $result[$key] = $value;
+  	}
+  	return $result;
   }
   
   /**

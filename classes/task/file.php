@@ -47,7 +47,7 @@ class Task_File extends Task_Base {
 	
 	function chmod($file, $mode, $elevate=false) {
 		$cmd = sprintf("chmod %o %s", $mode, escapeshellarg($file));
-		$this->minion->task('cmd')->run($cmd);
+		$this->minion->task('cmd')->run($cmd, $elevate);
 	}
 
 	function mode($file, $elevate=false) {
@@ -56,6 +56,10 @@ class Task_File extends Task_Base {
 
 	function owner($file, $elevate=false) {
 		return $this->attr($file, self::STAT_USER, $elevate);
+	}
+	
+	function group($file, $elevate=false) {
+		return $this->attr($file, self::STAT_GROUP, $elevate);
 	}
 		
 	function attr($file, $attr, $elevate=false) {
@@ -76,23 +80,24 @@ class Task_File extends Task_Base {
 		
 		// install the file if necessary
 		if($this->diff($local, $remote, true, $elevate)) {
-			$this->minion->task('cmd')->copy_to($local, $remote, $elevate);
+			$this->minion->task('cmd')->copy_to($local, $remote, $mode, $elevate);
 			$this->minion->log("New version of '{$remote}' installed");
 			$changed = true;
 		}
 		
 		// check the ownership
+		$current = explode(' ', $this->attr($remote, "%U %G %a", $elevate));
 		$o = "";
-		if($owner && $owner != $this->owner($file, $elevate)) $o = escapeshellcmd($owner);
-		if($group && $group != $this->group($file, $elevate)) $o .= "." . escapeshellcmd($group);
+		if($owner && $owner != $current[0]) $o = escapeshellcmd($owner);
+		if($group && $group != $current[1]) $o .= "." . escapeshellcmd($group);
 		if($o) {
-			$this->minion->task('cmd')->run("chown {$o} " . escapeshellarg(remote), $elevate);
+			$this->minion->task('cmd')->run("chown {$o} " . escapeshellarg($remote), $elevate);
 			$changed = true;
 		}
 		
 		// check the permissions
-		if($this->mode($file, $elevate) != $mode) {
-			$this->chmod($file, $mode, $elevate);
+		if($mode != octdec($current[2])) {
+			$this->chmod($remote, $mode, $elevate);
 			$changed = true;
 		}
 		

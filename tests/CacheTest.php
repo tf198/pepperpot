@@ -39,17 +39,21 @@ class Cache_Test extends PHPUnit_Framework_TestCase {
   
   function testClean() {
     $this->cache->clean();
-    $this->assertEquals($this->cache->keys(), array('short', 'hour', 'infinite'));
+    $this->assertEquals($this->cache->keys(), array('private', 'short', 'hour', 'infinite'));
+    
     // expire the short one
     $this->cache->_cache['short'][1] -= 20;
     $this->cache->clean();
-    $this->assertEquals($this->cache->keys(), array('hour', 'infinite'));
+    $this->assertEquals(array('private', 'hour', 'infinite'), $this->cache->keys());
+    
+    // check that private keys are removed for persisting
+    $this->assertEquals(array('hour', 'infinite'), array_keys($this->cache->get_data()));
   }
   
   function testSleep() {
     $data = serialize($this->cache);
     $this->cache = unserialize($data);
-    $this->assertEquals($this->cache->keys(), array('short', 'hour', 'infinite'));
+    $this->assertEquals(array('private', 'short', 'hour', 'infinite'), $this->cache->keys());
   }
   
 }
