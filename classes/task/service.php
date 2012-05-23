@@ -36,7 +36,8 @@ class Task_Service extends Task_Base {
 	public function status($name, $binary=null) {
 		
 		// first try the init script
-		$output = $this->minion->task('cmd')->system("{$this->base}/{$name} status", $ret);
+		$cmd = $this->minion->task('cmd')->run_as("{$this->base}/{$name} status", true);
+		$output = $this->minion->task('cmd')->system($cmd, $ret);
 		if($ret == 0) return true;
 		if($ret == 4) return false; // think this is standard (?)
 		if($output == "{$name} is not running") return false;
@@ -90,7 +91,7 @@ class Task_Service extends Task_Base {
 	
 	function ensure_enabled($name, $level=2, $change=true) {
 		if(!$this->enabled($name)) $this->enable($name);
-		if($change) $this->ensure_running(true);
+		if($change) $this->ensure_running($name);
 	}
 	
 	function ensure_disabled($name, $level=2, $change=true) {
