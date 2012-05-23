@@ -85,7 +85,7 @@ class Task_Network extends Task_Base {
           for($j=7, $d=count($parts); $j<$d; $j+=2) {
             $inet[$parts[$j-1]] = $parts[$j];
           }
-          $iface[$parts[4]] = $inet;
+          $iface[$parts[4]][] = $inet;
         }
       }
       $i++;
