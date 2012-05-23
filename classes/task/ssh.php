@@ -5,7 +5,7 @@ class Task_SSH extends Task_Cmd {
 
   function __construct($minion) {
     parent::__construct($minion);
-    $addr = $minion->get('config.ip');
+    $addr = $minion->get('config.host');
     $port = $minion->get('config.port', 22);
     $user = $minion->get('config.username');
     $minion->log("SSH> connect {$user}@{$addr} (port {$port})");
@@ -14,7 +14,7 @@ class Task_SSH extends Task_Cmd {
     if(!$this->ssh)
       throw new Task_Exception("Failed to connect to {$addr}");
     
-    $keyfile = $this->minion->get('config.keyfile');
+    $keyfile = $this->minion->get('config.keyfile', false);
     if($keyfile) {
       if(!ssh2_auth_pubkey_file($this->ssh, $user, $keyfile . ".pub", $keyfile))
         throw new Task_Exception("Authentication failed for {$user}@{$addr}");
