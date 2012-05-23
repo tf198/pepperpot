@@ -7,6 +7,8 @@ class Task_PHPSecLib extends Task_Cmd {
   const BOUNDARY = '==jv8dvngvn94d=';
 
   private $ssh, $sftp;
+  
+  public $stderr;
 
   private $addr, $port, $user, $auth;
   
@@ -53,20 +55,28 @@ class Task_PHPSecLib extends Task_Cmd {
     $output = explode("\n", trim($this->ssh->exec($ret_cmd)));
     // stderr is after result code
     $result = array_pop($output);
-    $stderr = array();
+    $this->stderr = array();
     $ret = -1;
     while(sscanf($result, "__%d__", $ret) != 1 && $output) {
-      $stderr[] = $result;
+      $this->stderr[] = $result;
       $result = array_pop($output);
     }
     $this->minion->log("SSH> {$cmd} [{$ret}]");
   }
+  
+  function stat($file, $elevate=false) {
+  	if($elevate) return parent::stat($file, $elevate);
+  	
+  	if(!$this->sftp) $this->sftp = $this->_sftp();
+  	
+  	return $this->sftp->stat($file);
+  }
 
   /**
    * Copy a file to the remote server
-   * This is a bit of a fudge as phpseclib doesn't currently support SCP so we use cat instead
-   * @param type $source
-   * @param type $dest
+   * @param type $local
+   * @param type $remote
+   * @param int  $mode
    * @param type $elevate
    */
   function copy_to($local, $remote, $mode=0644, $elevate=false) {
@@ -90,13 +100,12 @@ class Task_PHPSecLib extends Task_Cmd {
   function copy_from($remote, $local, $elevate=false) {
     if(!$this->sftp) $this->sftp = $this->_sftp();
     if ($elevate) {
-      throw new Task_Exception("Not yet implemented");
-    } else {
-      $source = $remote;
+      throw new Task_NotImplemented("Not implemented");
     }
     
-    if(!$this->sftp->get($source, $local))
+    if(!$this->sftp->get($remote, $local))
             throw new Task_Exception("Failed to receive file: '{$remote}' > '{$local}'");
+    $this->minion->log("SFTP> 'remote:{$remote}' > 'local:{$local}'");
     return true;
   }
 

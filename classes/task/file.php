@@ -2,14 +2,14 @@
 
 class Task_File extends Task_Base {
 
-	const STAT_USER 	= 'U';
-	const STAT_UID 		= 'u';
-	const STAT_GROUP 	= 'G';
-	const STAT_GID 		= 'g';
-	const STAT_MODE		= 'a';
-	const STAT_ATIME	= 'X';
-	const STAT_MTIME	= 'Y';
-	const STAT_CTIME	= 'Z';
+	const STAT_USER 	= '%U';
+	const STAT_UID 		= '%u';
+	const STAT_GROUP 	= '%G';
+	const STAT_GID 		= '%g';
+	const STAT_MODE		= '%a';
+	const STAT_ATIME	= '%X';
+	const STAT_MTIME	= '%Y';
+	const STAT_CTIME	= '%Z';
 	
 
 	function md5sum($file, $elevate=false) {
@@ -20,20 +20,82 @@ class Task_File extends Task_Base {
 			return "";
 		}
 	}
-
-	function chown($file, $owner, $group) {
-		$this->minion->task('cmd')->run("chown {$owner}.{$group} " . escapeshellarg($file), true);
+	
+	function diff($local, $remote, $brief=false, $elevate=false) {
+		$local_md5 = md5_file($local);
+		$remote_md5 = $this->md5sum($remote, $elevate);
+		
+		if($local_md5 == $remote_md5) return false;
+		if($brief) return true;
+		
+		$tmp = tempnam(sys_get_temp_dir(), 'diff_');
+		$this->minion->task('cmd')->copy_from($remote, $tmp, $elevate);
+		
+		$cmd = sprintf("diff -u %s %s", escapeshellarg($local), escapeshellarg($tmp));
+		exec($cmd, $output, $ret);
+		unlink($tmp);
+	
+		return $output;
 	}
 
-	function mode($file) {
-		return octdec("0" . $this->stat($file, self::STAT_MODE));
+	function chown($file, $owner=null, $group=null, $elevate=false) {
+		$o = ($owner) ? escapeshellcmd($owner) : "";
+		if($group) $o .= "." . escapeshellcmd($group);
+		if(!$o) throw new Task_Exception("Require at least one of owner or group");
+		$this->minion->task('cmd')->run("chown {$o} " . escapeshellarg($file), $elevate);
+	}
+	
+	function chmod($file, $mode, $elevate=false) {
+		$cmd = sprintf("chmod %o %s", $mode, escapeshellarg($file));
+		$this->minion->task('cmd')->run($cmd);
 	}
 
-	function owner($file) {
-		return $this->stat($file, self::STAT_USER);
+	function mode($file, $elevate=false) {
+		return octdec("0" . $this->attr($file, self::STAT_MODE, $elevate));
+	}
+
+	function owner($file, $elevate=false) {
+		return $this->attr($file, self::STAT_USER, $elevate);
 	}
 		
-	function stat($file, $attr) {
-		return $this->minion->task('cmd')->run("stat -c %{$attr} " . escapeshellarg($file));
+	function attr($file, $attr, $elevate=false) {
+		return $this->minion->task('cmd')->run("stat -c \"{$attr}\" " . escapeshellarg($file), $elevate);
+	}
+	
+	function stat($file, $elevate=false) {
+		$format = "%D %i 0 %h %u %g 0 %s %X %Y %Z %B %b";
+		
+		$line = $this->minion->task('cmd')->run("stat -c \"{$format}\" " . escapeshellarg($file), $elevate);
+		$data = sscanf($line, "%x %d %x %d %d %d %x %d %d %d %d %d %d");
+		$keys = array('dev', 'ino', 'mode', 'nlink', 'uid', 'gid', 'rdev', 'size', 'atime', 'mtime', 'ctime', 'blksize', 'blocks');
+		return array_combine($keys, $data);
+	}
+	
+	function ensure_installed($local, $remote, $elevate=false, $owner=null, $group=null, $mode=0644) {
+		$changed = false;
+		
+		// install the file if necessary
+		if($this->diff($local, $remote, true, $elevate)) {
+			$this->minion->task('cmd')->copy_to($local, $remote, $elevate);
+			$this->minion->log("New version of '{$remote}' installed");
+			$changed = true;
+		}
+		
+		// check the ownership
+		$o = "";
+		if($owner && $owner != $this->owner($file, $elevate)) $o = escapeshellcmd($owner);
+		if($group && $group != $this->group($file, $elevate)) $o .= "." . escapeshellcmd($group);
+		if($o) {
+			$this->minion->task('cmd')->run("chown {$o} " . escapeshellarg(remote), $elevate);
+			$changed = true;
+		}
+		
+		// check the permissions
+		if($this->mode($file, $elevate) != $mode) {
+			$this->chmod($file, $mode, $elevate);
+			$changed = true;
+		}
+		
+		return $changed;
 	}
 }

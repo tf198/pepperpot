@@ -100,9 +100,7 @@ class Minion_Cache {
    * @return array
    */
   function __sleep() {
-    foreach($this->_cache as $key => $value) {
-      if($value[1]<self::CACHE_SESSION) unset($this->_cache[$key]);
-    }
+    $this->clean();
     return array('_cache');
   }
 }

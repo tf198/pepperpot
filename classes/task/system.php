@@ -12,7 +12,7 @@ class Task_System extends Task_Base {
 		);
 
 	function os() {
-		if($this->minion->speck('task.system.kernel')=='windows_nt') return 'windows';
+		if($this->minion->speck('system.kernel')=='windows_nt') return 'windows';
 
 		// ubuntu - a bit tricky actually
 		$this->minion->task('cmd')->system('test -f /etc/issue.net', $ret);
@@ -32,7 +32,7 @@ class Task_System extends Task_Base {
 	}
 
 	function kernel_version() {
-		switch($this->minion->speck('task.system.kernel')) {
+		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
 				return $this->minion->task('cmd')->run('uname -r');
 			case 'windows_nt':
@@ -45,7 +45,7 @@ class Task_System extends Task_Base {
 	}
 
 	function cpuinfo() {
-		switch($this->minion->speck('task.system.kernel')) {
+		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
 				$data = $this->minion->task('cmd')->run_stdout('cat /proc/cpuinfo');
 				$raw = $this->_parse_keypairs($data, ':');
@@ -73,7 +73,7 @@ class Task_System extends Task_Base {
 	
 	function cpu() {
 		$raw = $this->cpuinfo();
-		switch($this->minion->speck('task.system.kernel')) {
+		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
 				return array(
 						'vendor' => $raw['vendor_id'],
@@ -94,7 +94,7 @@ class Task_System extends Task_Base {
 	}
 	
 	function meminfo() {
-		switch($this->minion->speck('task.system.kernel')) {
+		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
 				$data = $this->minion->task('cmd')->run_stdout('head -n 5 /proc/meminfo');
 				$raw = array();
@@ -132,7 +132,7 @@ class Task_System extends Task_Base {
 	}
 
 	function time() {
-		switch($this->minion->speck('task.system.kernel')) {
+		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
 				$date = $this->minion->task('cmd')->run('date -R');
 				return strtotime($date);
@@ -166,10 +166,10 @@ class Task_System extends Task_Base {
 	 */
 	function info() {
 		return array(
-				'kernel' => $this->minion->speck('task.system.kernel'),
-				'os' => $this->minion->speck('task.system.os'),
-				'cpu' => $this->minion->speck('task.system.cpu'),
-				'memory' => $this->minion->speck('task.system.memory'),
+				'kernel' => $this->minion->speck('system.kernel'),
+				'os' => $this->minion->speck('system.os'),
+				'cpu' => $this->minion->speck('system.cpu'),
+				'memory' => $this->minion->speck('system.memory'),
 		);
 	}
 	

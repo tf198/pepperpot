@@ -49,7 +49,7 @@ class Cache_Test extends PHPUnit_Framework_TestCase {
   function testSleep() {
     $data = serialize($this->cache);
     $this->cache = unserialize($data);
-    $this->assertEquals($this->cache->keys(), array('session', 'short', 'hour', 'infinite'));
+    $this->assertEquals($this->cache->keys(), array('short', 'hour', 'infinite'));
   }
   
 }

@@ -47,11 +47,11 @@ Create a ``machines.php`` file::
 	
 Invoke a predefined task on all targets::
 
-	> php run.php % task.system.os
+	> php run.php % system.os
 	
 Invoke a task on a set of targets::
 
-	> php run.php test% task.system.hostname
+	> php run.php test% system.hostname
    
 If there is a folder called ``cache`` then ``run.php`` will persist cached values for the machines to this folder. 
 
@@ -70,7 +70,7 @@ API usage
 	$minion = new Minion("My Minion", $info);
 	
    // speck calls a component and caches the result as appropriate
-	echo $minion->speck('task.system.hostname');
+	echo $minion->speck('system.hostname');
    
    /**
    * optionally you can store the cache for a future run and pass it as the third argument to the constructor
@@ -82,10 +82,10 @@ API usage
    
 Caching
 =======
- 
+
 During a run all values are cached for a time set by the class containing the component depending on the type of information
-returned e.g. ``task.system.hostname`` and ``task.system.os`` are cached forever but ``task.system.uptime`` is always re-queried.  
-You can manually expire a cached value by calling ``$minion->cache->delete('task.system.hostname')`` in the event that you have modified something
+returned e.g. ``system.hostname`` and ``system.os`` are cached forever but ``system.uptime`` is always re-queried.  
+You can manually expire a cached value by calling ``$minion->cache->delete('system.hostname')`` in the event that you have modified something
 on the system.  As in the above example, the cache can be persisted between sessions which drastically reduces the number of commands
 that need to be executed.
 
@@ -94,13 +94,14 @@ Tasks and states should take full advantage of the caching system for pre-requis
 Tasks
 =====
 
-Tasks are low level system interactions that can either query the system for a piece of information or perform one small task.  
-Typically a Task class will concern itself with one or two binaries on the system e.g. apt, upstart and abstract the key functions of that binary.
+Tasks can do one of three things:
 
-States
-======
+1) Return a small piece of information about the system.  The method implementation should include a cache time settings and users should
+try to call them using the ``speck()`` interface to take advantage of the caching. Examples are ``system.os`` and ``network.mac:eth0``
 
-States are a higher level concept that define a particular state for the machine and perform any actions required to get the system into that condition.
-For example ``state.service.started::apache2`` will first check whether the apache2 service is running, and start it if not.
+2) Perform a specific action.  This should be kept as small as possible, with the majority mapping to a single system call on the remote machine
+e.g. ``$minion->task('file')->chmod('/etc/motd', 0644)`` or ``$minion->task('service')->start('apache2')``
 
-
+3) Bring the system to a specific state.  These are more compicated methods that check existing conditions and act accordingly.  By convention they
+should be prefixed with ``ensure_`` e.g. ``service.ensure_running:apache2``.  They can make decisions based on cached values by using ``speck()`` or
+forcing a remote call.

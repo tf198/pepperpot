@@ -51,8 +51,8 @@ class Minion {
   }
   
   /**
-   * Specks are cachable component results
-   * @param 	string 	$key	item key e.g. task.system.os
+   * Specks are cachable task results
+   * @param 	string 	$key	item key e.g. system.os
    * @return 	mixed
    */
   function speck($key) {
@@ -78,18 +78,23 @@ class Minion {
   
   /**
    * Decode a string in the format <type>.<name>.<method>:arg1:arg2..
-   * @param unknown_type $uri
+   * Args can escape : with \:
+   * @param string $uri
    * @throws Exception
    * @return array		(components, method, params) 
    */
   function _parse_uri($uri) {
+  	$uri = str_replace('\\:', '%3A', $uri);
+  	
   	$params = explode(':', $uri);
   	$accessor = array_shift($params);
+  	
+  	$params = array_map('urldecode', $params);
   	 
   	$parts = explode('.', $accessor);
-  	if(count($parts)!=3) throw new Exception("Unexpected accessor format: {$accessor}");
+  	if(count($parts)!=2) throw new Exception("Unexpected accessor format: {$accessor}");
   	
-  	return array($this->_component($parts[0], $parts[1]), $parts[2], $params);
+  	return array($this->_component('task', $parts[0]), $parts[1], $params);
   }
 
   /**
@@ -101,6 +106,7 @@ class Minion {
   private function _component($type, $name) {
     if (!isset($this->_components[$type][$name])) {
       $klass = $type . '_' . $name;
+      if(!class_exists($klass)) throw new Exception("No such class: " . $klass);
       $this->_components[$type][$name] = call_user_func(array($klass, "handler"), $this, $klass);
     }
     return $this->_components[$type][$name];
