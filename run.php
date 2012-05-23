@@ -18,6 +18,8 @@ PepperPot::register();
 // set up logging
 Minion::$logger = new MinionLogger();
 
+$returner = new Minion_Returner_Console();
+
 // allow wildcards in identifier
 $identifier = str_replace('%', '.*', $identifier);
 
@@ -38,7 +40,7 @@ foreach($config as $name => $info) {
       $minion = new Minion($name, $info, $cache);
       $result = $minion->speck($argv[2]);
       
-      $minion->log("RESULT> " . print_r($result, true));
+      $returner->write($minion, $result);
       $i++;
 
       if(is_writable('cache')) {
