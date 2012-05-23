@@ -107,7 +107,7 @@ class Task_Cmd extends Task_Base {
   
   static function handler($instance, $klass=null) {
   
-    if (!$instance->get('core.local', false)) {
+    if (!$instance->get('config.local', false)) {
       $klass = function_exists('ssh2_connect') ? "Task_SSH" : "Task_PHPSecLib";
       return new $klass($instance);
     }

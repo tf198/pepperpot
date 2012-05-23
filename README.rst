@@ -41,7 +41,7 @@ Create a ``machines.php`` file::
 	<?php
 	return array(
 	  'localhost' => array('local' => true),
-	  'testing' => array('ip' => '10.0.0.1', 'username' => 'bob', 'password' => 'secretpass'),
+	  'testing' => array('host' => '10.0.0.1', 'username' => 'bob', 'password' => 'secretpass'),
 	);
 	?>
 	

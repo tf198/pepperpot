@@ -15,16 +15,16 @@ class Task_PHPSecLib extends Task_Cmd {
   function __construct($minion) {
     parent::__construct($minion);
     
-    $this->addr = $minion->get('core.ip');
-    $this->port = $minion->get('core.port', 22);
-    $this->user = $minion->get('core.username');
-    $keyfile = $minion->get('core.keyfile', false);
+    $this->addr = $minion->get('config.host');
+    $this->port = $minion->get('config.port', 22);
+    $this->user = $minion->get('config.username');
+    $keyfile = $minion->get('config.keyfile', false);
     if ($keyfile) {
       require_once "Crypt/RSA.php";
       $this->auth = new Crypt_RSA();
       $this->auth->loadKey(file_get_contents($keyfile));
     } else {
-      $this->auth = $minion->get('core.password');
+      $this->auth = $minion->get('config.password');
     }
   }
   

@@ -5,7 +5,7 @@
  */
 class Minion {
   
-  public $_components = array('task' => array(), 'state' => array());
+  public $_tasks = array();
   
   /**
    * Identifier for this system
@@ -34,7 +34,7 @@ class Minion {
     $this->name = $name;
     $this->cache = $cache ? $cache : new Minion_Cache();
     foreach ($params as $key => $value) {
-      $this->cache->set('core.' . $key, $value, Minion_Cache::CACHE_PRIVATE);
+      $this->cache->set('config.' . $key, $value, Minion_Cache::CACHE_PRIVATE);
   	}
   }
 
@@ -46,7 +46,8 @@ class Minion {
    */
   function get($key, $default=null) {
     $value = $this->cache->get($key, $default);
-    if($key!='core.password') $this->log("GET> {$key} = {$value}");
+    $filtered = ($key!='config.password') ? $value : '********';
+    $this->log("GET> {$key} = {$filtered}");
     return $value;
   }
   
@@ -60,18 +61,24 @@ class Minion {
       return $this->cache->get($key);
     }
     
-    list($component, $method, $params) = $this->_parse_uri($key);
-    $result = call_user_func_array(array($component, $method), $params);
-    $cache_time = isset($component->cache_time[$method]) ? $component->cache_time[$method] : Minion_Cache::CACHE_SESSION;
+    list($task, $method, $params) = self::parse_uri($key);
+    $t = $this->task($task);
+    $result = call_user_func_array(array($t, $method), $params);
+    $cache_time = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
     
     
     $this->cache->set($key, $result, $cache_time);
     return $result;
   }
   
+  /**
+   * Dispatch a uri in the same format as speck() but without caching it
+   * @param string	$uri
+   * @return mixed
+   */
   function dispatch($uri) {
-  	list($component, $method, $params) = $this->_parse_uri($uri);
-  	$result = call_user_func_array(array($component, $method), $params);
+  	list($task, $method, $params) = $this->_parse_uri($uri);
+  	$result = call_user_func_array(array($this->task($task), $method), $params);
   	
   	return $result;
   }
@@ -81,9 +88,9 @@ class Minion {
    * Args can escape : with \:
    * @param string $uri
    * @throws Exception
-   * @return array		(components, method, params) 
+   * @return array		(task, method, params) 
    */
-  function _parse_uri($uri) {
+  static function parse_uri($uri) {
   	$uri = str_replace('\\:', '%3A', $uri);
   	
   	$params = explode(':', $uri);
@@ -94,68 +101,21 @@ class Minion {
   	$parts = explode('.', $accessor);
   	if(count($parts)!=2) throw new Exception("Unexpected accessor format: {$accessor}");
   	
-  	return array($this->_component('task', $parts[0]), $parts[1], $params);
+  	return array($parts[0], $parts[1], $params);
   }
 
   /**
-   * Singleton factory for named components
-   * @param 	string	$type	'task', 'state'
-   * @param		string	$name	second part of class name
-   * @return	object			component instance
-   */
-  private function _component($type, $name) {
-    if (!isset($this->_components[$type][$name])) {
-      $klass = $type . '_' . $name;
-      if(!class_exists($klass)) throw new Exception("No such class: " . $klass);
-      $this->_components[$type][$name] = call_user_func(array($klass, "handler"), $this, $klass);
-    }
-    return $this->_components[$type][$name];
-  }
-
-  /**
-   * Tasks are things to do
+   * Singleton factory for Tasks
    * @param 	string	$name
    * @return	Task_Base	the requested task subclass
    */
   function task($name) {
-    return $this->_component('task', $name);
-  }
-
-  /**
-   * Desired states for the target system to be in
-   * @param		string	$name
-   * @return	State_Base	the requested state subclass
-   */
-  function state($name) {
-    return $this->_component('state', $name);
-  }
-
-  /**
-   * Bring a system to a state described by an array
-   * $desired = array(
-   * 	'state.package.installed:openssh-server',
-   * 	'state.service.running:ssh',
-   * )
-   * @param unknown_type $state
-   * @return boolean
-   */
-  function setState($state) {
-    foreach ($state as $name => $handlers) {
-      foreach ($handlers as $handler => $actions) {
-        if (!is_array($actions))
-          $actions = array($actions => null);
-        foreach ($actions as $method => $params) {
-          $result = $this->state($handler)->$method($name, $params);
-          if ($result === true) {
-            echo "{$handler} {$method} OK\n";
-          } else {
-            echo "{$handler} {$method} FAILED\n";
-            return false;
-          }
-        }
-      }
+    if (!isset($this->_tasks[$name])) {
+      $klass = 'Task_' . $name;
+      if(!class_exists($klass)) throw new Exception("No such task: " . $name);
+      $this->_tasks[$name] = call_user_func(array($klass, "handler"), $this, $klass);
     }
-    return true;
+    return $this->_tasks[$name];
   }
   
   /**

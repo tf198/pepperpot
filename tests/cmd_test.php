@@ -8,7 +8,7 @@ abstract class Cmd_Test extends PHPUnit_Framework_TestCase {
 	function setUp() {
 		$this->minion = new Minion('test', array());
 		$this->cmd = new Mock_Cmd($this->minion);
-		$this->minion->_components['task']['cmd'] = $this->cmd;
+		$this->minion->_tasks['cmd'] = $this->cmd;
 	}
 }
 
