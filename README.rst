@@ -20,16 +20,17 @@ xx    partial functionality and test set
 x     partial functionality only
 ===== ======================================
 
-* Cmd (xxx)
-   * SSH (xx)
-   * PHPSecLib (xxx)
-* System (xxx)
-* File (xxx)
-* Pkg (xxx)
-   * Apt (xxx)
-* Network (xxx)
-* Service (xxx)
-* User (x)
+::
+   Cmd (xxx)
+      SSH (xx)
+      PHPSecLib (xxx)
+   System (xxx)
+   File (xxx)
+   Pkg (xxx)
+      Apt (xxx)
+   Network (xxx)
+   Service (xxx)
+   User (x)
 
 Requirements
 ============
@@ -61,18 +62,22 @@ Create a ``machines.php`` file::
 	<?php
 	return array(
 	  'localhost' => array('local' => true),
-	  'testing' => array('host' => '10.0.0.1', 'username' => 'bob', 'password' => 'secretpass'),
+	  'test1' => array('host' => '10.0.0.1', 'username' => 'bob', 'password' => 'secretpass'),
+     ...
 	);
 	?>
 	
 Get the os for all targets::
+
 	> php run.php % system.os
 	
 Get the hostname on targets starting with 'test'::
+
 	> php run.php test% system.hostname
    
 Make sure that all webservers are running::
-   > php run.php www.% service.ensure_running:apache2
+
+   > php run.php web.% service.ensure_running:apache2
    
 If there is a folder called ``cache`` then ``run.php`` will persist cached values for the machines to this folder. 
 
@@ -132,12 +137,12 @@ Tasks
 
 Tasks can do one of three things:
 
-1) **speck**: Returns a small piece of information about the system.  The method implementation should include a cache time settings and users should
+* **speck**: Returns a small piece of information about the system.  The method implementation should include a cache time settings and users should
 try to call them using the ``speck()`` interface to take advantage of the caching. Examples are ``system.os`` and ``network.mac:eth0``
 
-2) **action**: Perform a specific action.  This should be kept as small as possible, with the majority mapping to a single system call on the remote machine
+* **action**: Perform a specific action.  This should be kept as small as possible, with the majority mapping to a single system call on the remote machine
 e.g. ``$minion->task('file')->chmod('/etc/motd', 0644)`` or ``$minion->task('service')->start('apache2')``
 
-3) **state**: Bring the system to a specific state.  These are more compicated methods that check existing conditions and act accordingly.  By convention they
+* **state**: Bring the system to a specific state.  These are more compicated methods that check existing conditions and act accordingly.  By convention they
 should be prefixed with ``ensure_`` e.g. ``service.ensure_running:apache2``.  They can make decisions based on cached values by using ``speck()`` or
 forcing a remote call.
