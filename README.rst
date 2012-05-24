@@ -10,28 +10,24 @@ state logic has been ported almost as-is but the underlying transport is complet
 Status
 ======
 This is currently under development but the core API is pretty fixed now.  At the moment the 
-tasks are targeted at Ubuntu systems and are tested to varying degrees:
+tasks are targeted at Ubuntu systems and are tested to varying degrees::
 
-===== ======================================
-xxxxx production ready (not yet!)
-xxxx  full functionality and test set
-xxx   full functionality and partial test set
-xx    partial functionality and test set
-x     partial functionality only
-===== ======================================
-
-::
-
-   Cmd (xxx)
-      SSH (xx)
-      PHPSecLib (xxx)
-   System (xxx)
-   File (xxx)
-   Pkg (xxx)
-      Apt (xxx)
-   Network (xxx)
-   Service (xxx)
-   User (x)
+   Cmd  (xxx)
+      SSH  (xx)
+      PHPSecLib  (xxx)
+   System  (xxx)
+   File  (xxx)
+   Pkg  (xxx)
+      Apt  (xxx)
+   Network  (xxx)
+   Service  (xxx)
+   User  (x)
+   
+   xxxxx production ready (not yet!)
+   xxxx  full functionality and test set
+   xxx   full functionality and partial test set
+   xx    partial functionality and test set
+   x     partial functionality only
 
 Requirements
 ============
