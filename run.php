@@ -61,6 +61,7 @@ foreach($config as $name => $info) {
 
 		} catch(Exception $e) {
 			$minion->log("ERROR> " . $e->getMessage());
+			fputs(STDERR, PHP_EOL . $e->getTraceAsString() . PHP_EOL);
 		}
 	}
 }
