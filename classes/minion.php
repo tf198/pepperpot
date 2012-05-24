@@ -5,6 +5,10 @@
  */
 class Minion {
   
+  /**
+   * Singleton store for Task_Base subclasses
+   * @var multitype:Task_Base
+   */
   public $_tasks = array();
   
   /**
@@ -26,14 +30,14 @@ class Minion {
   static $logger = null;
   
   /**
-   * @param 	string		$name	identifier used for logging
-   * @param 	array 		$params core params (host, username, password etc)
-   * @param 	MinionCache	$cache	optional cache object for persistance
+   * @param 	string				$name	identifier used for logging
+   * @param 	multitype:string	$config core params (host, username, password etc)
+   * @param 	MinionCache			$cache	optional cache object for persistance
    */
-  function __construct($name, $params, $cache=null) {
+  function __construct($name, $config, $cache=null) {
     $this->name = $name;
     $this->cache = $cache ? $cache : new Minion_Cache();
-    foreach ($params as $key => $value) {
+    foreach ($config as $key => $value) {
       $this->cache->set('config.' . $key, $value, Minion_Cache::CACHE_PRIVATE);
   	}
   }
@@ -84,11 +88,11 @@ class Minion {
   }
   
   /**
-   * Decode a string in the format <type>.<name>.<method>:arg1:arg2..
+   * Decode a string in the format <name>.<method>:arg1:arg2..
    * Args can escape : with \:
    * @param string $uri
    * @throws Exception
-   * @return array		(task, method, params) 
+   * @return multitype:mixed
    */
   static function parse_uri($uri) {
   	$uri = str_replace('\\:', '%3A', $uri);

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Basic information about a system
+ * @author Tris Forster
+ */
 class Task_System extends Task_Base {
 	public $cache_time = array(
 			'os' => 0, 
@@ -11,6 +15,11 @@ class Task_System extends Task_Base {
 			'info' => Minion_Cache::CACHE_NEVER, // avoid duplication
 		);
 
+	/**
+	 * Get system os
+	 * @pepper speck
+	 * @return string		e.g. windows, ubuntu, redhat, centos
+	 */
 	function os() {
 		if($this->minion->speck('system.kernel')=='windows_nt') return 'windows';
 
@@ -24,6 +33,11 @@ class Task_System extends Task_Base {
 		return "unknown";
 	}
 
+	/**
+	 * Get system kernel
+	 * @pepper speck
+	 * @return string		e.g. windows_nt, linux
+	 */
 	function kernel() {
 		$env = $this->minion->task('cmd')->run('echo %OS%');
 		if($env != "%OS%") return strtolower($env);
@@ -31,6 +45,11 @@ class Task_System extends Task_Base {
 		return strtolower($this->minion->task('cmd')->run('uname -s'));
 	}
 
+	/**
+	 * Get kernel version
+	 * @throws Task_Exception
+	 * @throws Task_NotImplemented
+	 */
 	function kernel_version() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
@@ -44,6 +63,12 @@ class Task_System extends Task_Base {
 		}
 	}
 
+	/**
+	 * Get raw CPU information
+	 * @pepper speck
+	 * @throws Task_NotImplemented
+	 * @return multitype:string
+	 */
 	function cpuinfo() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
@@ -71,6 +96,12 @@ class Task_System extends Task_Base {
 		}
 	}
 	
+	/**
+	 * Get standardised CPU information
+	 * pepper speck
+	 * @throws Task_NotImplemented
+	 * @return multitype:string		vendor, model, MHz, bogomips
+	 */
 	function cpu() {
 		$raw = $this->cpuinfo();
 		switch($this->minion->speck('system.kernel')) {
@@ -93,6 +124,11 @@ class Task_System extends Task_Base {
 		}
 	}
 	
+	/**
+	 * Get standardised memory info (KB)
+	 * @throws Task_NotImplemented
+	 * @return multitype:string			total, free
+	 */
 	function meminfo() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
@@ -111,11 +147,22 @@ class Task_System extends Task_Base {
 		}
 	}
 	
-	function memory($item='total') {
+	/**
+	 * Get installed memory (KB)
+	 * @return int
+	 */
+	function memory() {
 		$data = $this->meminfo();
-		return $data[$item];
+		return $data['total'];
 	}
 
+	/**
+	 * Parse output based on separator
+	 * Trims keys and values
+	 * @param array $data		output lines
+	 * @param string $sep		separator (default: =)
+	 * @return multitype:string	key/value pairs
+	 */
 	function _parse_keypairs($data, $sep='=') {
 		$result = array();
 		foreach($data as $line) {
@@ -126,11 +173,21 @@ class Task_System extends Task_Base {
 		return $result;
 	}
 
+	/**
+	 * Get system hostname
+	 * @pepper speck
+	 * @return string
+	 */
 	function hostname() {
 		// same for everything I think
 		return $this->minion->task('cmd')->run('hostname');
 	}
 
+	/**
+	 * Get system timestamp
+	 * @throws Task_NotImplemented
+	 * @return int		unix timestamp
+	 */
 	function time() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
@@ -141,6 +198,12 @@ class Task_System extends Task_Base {
 		}
 	}
 	
+	/**
+	 * Get uptime information
+	 * @pepper speck
+	 * @throws Task_Exception
+	 * @return multitype:string
+	 */
 	function uptime() {
 		$data = $this->minion->task('cmd')->run('uptime');
 		if(!preg_match('/up\s+([0-9\:]+),\s+(\d+) users?,\s+load average: ([0-9\.]+), ([0-9\.]+), ([0-9\.]+)$/', $data, $matches)) {
@@ -153,16 +216,28 @@ class Task_System extends Task_Base {
 				);
 	}
 
+	/**
+	 * Calculate time offset from local machine
+	 * @pepper speck
+	 * @return int	timestamp
+	 */
 	function time_offset() {
 		return time() - $this->time();
 	}
 
+	/**
+	 * Manually expire a key
+	 * @deprecated
+	 * @pepper action
+	 * @param string $key
+	 */
 	function expire($key) {
 		return $this->minion->expire($key);
 	}
 	
 	/**
 	 * Forced caching of static system parameters
+	 * @return multitype:string
 	 */
 	function info() {
 		return array(
@@ -173,6 +248,12 @@ class Task_System extends Task_Base {
 		);
 	}
 	
+	/**
+	 * Get process ids
+	 * @pepper speck
+	 * @param string $name		process name e.g. sshd
+	 * @return multitype:int
+	 */
 	function ps($name) {
 		$this->minion->task('cmd')->exec('ps -C ' . escapeshellarg($name), $output, $ret);
 		$result = array();

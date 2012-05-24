@@ -38,18 +38,18 @@ class Task_SSH extends Task_Cmd {
     $this->minion->log("SSH> {$cmd} [{$ret}]");
   }
   
-  function copy_to($local, $remote, $create_mode=0644, $elevate=false) {
-    if($elevate) {
+  function copy_to($local, $remote, $mode=0644, $user=false) {
+    if($user) {
       throw new Task_Exception("Not yet implemented");
     } else {
       $dest = $remote;
     }
-    if(!ssh2_scp_send($this->ssh, $local, $dest, $create_mode))
+    if(!ssh2_scp_send($this->ssh, $local, $dest, $mode))
       throw new Task_Exception("Failed to send file: '{$local}' > '{$remote}'");
     return true;
   }
   
-  function copy_from($remote, $local, $elevate=false) {
+  function copy_from($remote, $local, $mode=0644, $user=false) {
     if(!ssh2_scp_recv($this->ssh, $remote, $local)) {
       throw new Task_Exception("Failed to receive file: '{$remote}' > '{$local}'");
     }

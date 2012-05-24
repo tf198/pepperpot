@@ -23,7 +23,7 @@ $ sudo -n apt-get update
 EOF;
     
     $this->minion->task('apt')->reload();
-  	$this->assertTrue($this->cmd->endofstream());
+  	$this->assertEndOfStream();
   }
 
   function testAvailable() {

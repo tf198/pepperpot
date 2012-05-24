@@ -64,26 +64,18 @@ class Task_PHPSecLib extends Task_Cmd {
     $this->minion->log("SSH> {$cmd} [{$ret}]");
   }
   
-  function stat($file, $elevate=false) {
-  	if($elevate) return parent::stat($file, $elevate);
+  function stat($file, $user=false) {
+  	if($user) return parent::stat($file, $user);
   	
   	if(!$this->sftp) $this->sftp = $this->_sftp();
   	
   	return $this->sftp->stat($file);
   }
 
-  /**
-   * Copy a file to the remote server
-   * @param type $local
-   * @param type $remote
-   * @param int  $mode
-   * @param type $elevate
-   */
-  function copy_to($local, $remote, $mode=0644, $elevate=false) {
+  function copy_to($local, $remote, $mode=0644, $user=false) {
     if(!$this->sftp) $this->sftp = $this->_sftp();
-    var_dump($elevate);
     
-    if ($elevate) {
+    if ($user) {
       $dest = "/tmp/" . str_replace('/', '_', $remote);
     } else {
       $dest = $remote;
@@ -93,15 +85,15 @@ class Task_PHPSecLib extends Task_Cmd {
     if(!$this->sftp->put($dest, $data))
     	throw new Task_Exception("Failed to send file: 'local:{$local}' > 'remote:{$dest}' [" . $this->sftp->getLastSFTPError() . ']');
     $this->minion->log("SFTP> 'local:{$local}' > 'remote:{$dest}'");
-    if($elevate) {
-    	$this->run("mv \"{$dest}\" \"{$remote}\"", true);
+    if($user) {
+    	$this->run("mv \"{$dest}\" \"{$remote}\"", $user);
     }
     return true;
   }
 
-  function copy_from($remote, $local, $elevate=false) {
+  function copy_from($remote, $local, $mode=0644, $user=false) {
     if(!$this->sftp) $this->sftp = $this->_sftp();
-    if ($elevate) {
+    if ($user) {
       throw new Task_NotImplemented("Not implemented");
     }
     
