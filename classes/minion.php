@@ -162,7 +162,7 @@ class Minion {
    * @param		int		$level		one of the PHP LOG_XXXX constants
    */
   function log($message, $level=LOG_INFO) {
-  	$message = sprintf("%20s: %s", $this->name, $message);
+  	$message = sprintf("%s: %s", $this->name, $message);
   	self::$logger && self::$logger->add($level, $message);
   }
 

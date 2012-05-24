@@ -5,6 +5,20 @@
  * @package PepperPot/Task
  */
 class Task_System extends Task_Base {
+	
+	const SIGHUP	= 1;
+	const SIGINT	= 2;
+	const SIGQUIT	= 3;
+	const SIGILL	= 4;
+	const SIGTRAP	= 5;
+	const SIGABRT	= 6;
+	const SIGFPE	= 8;
+	const SIGKILL	= 9;
+	const SIGSEGV	= 11;
+	const SIGPIPE	= 13;
+	const SIGALRM	= 14;
+	const SIGTERM	= 15;
+	
 	public $cache_time = array(
 			'os' => 0, 
 			'kernel' => 0, 
@@ -121,7 +135,7 @@ class Task_System extends Task_Base {
 						'bogomips' => null,
 				);
 			default:
-				throw new Task_NotImplemented;
+				throw new Task_NotImplemented();
 		}
 	}
 	
@@ -144,7 +158,7 @@ class Task_System extends Task_Base {
 						'free' => $raw['MemFree']/1024,
 				);
 			default:
-				throw new Task_NotImplemented;
+				throw new Task_NotImplemented();
 		}
 	}
 	
@@ -194,6 +208,12 @@ class Task_System extends Task_Base {
 			case 'linux':
 				$date = $this->cmd->run('date -R');
 				return strtotime($date);
+			case 'windows_nt':
+				// Note: currently only minute resolution
+				$d = explode('/', substr($this->minion->task('cmd')->run('date /T'), 4));
+				$t = $this->minion->task('cmd')->run('time /T');
+				$date = "{$d[2]}-{$d[1]}-{$d[0]} {$t}";
+				return strtotime($date);
 			default:
 				throw new Task_NotImplemented();
 		}
@@ -206,6 +226,8 @@ class Task_System extends Task_Base {
 	 * @return multitype:string
 	 */
 	function uptime() {
+		if($this->minion->speck('system.kernel') != 'linux') throw new Task_NotImplemented;
+		
 		$data = $this->cmd->run('uptime');
 		if(!preg_match('/up\s+([0-9\:]+),\s+(\d+) users?,\s+load average: ([0-9\.]+), ([0-9\.]+), ([0-9\.]+)$/', $data, $matches)) {
 			throw new Task_Exception("Failed to parse uptime");
@@ -262,6 +284,12 @@ class Task_System extends Task_Base {
 			$result[] = (int)$output[$i];
 		}
 		return $result;
+	}
+	
+	function kill($pid, $signal=null) {
+		if(!is_int($pid)) throw new Task_Exception("Expected integer pid");
+		$this->minion->task('cmd')->system("kill {$pid}", $ret);
+		return ($ret == 0);
 	}
 }
 ?>

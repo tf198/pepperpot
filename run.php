@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?
-define('MACHINES', 'machines.php');
+define('PEPPERPOT_MACHINES', 'machines.php');
 define('PEPPERPOT_CACHE_DIR', 'cache');
 
 $ts = microtime(true);
@@ -8,8 +8,8 @@ $ts = microtime(true);
 $parser = parse_args($argv);
 if(count($parser['args']) < 2) _fail("Not enough arguments"); 
 
-if(!file_exists(MACHINES)) _fail("Missing config file: " . MACHINES);
-$config = include(MACHINES);
+if(!file_exists(PEPPERPOT_MACHINES)) _fail("Missing config file: " . MACHINES);
+$config = include(PEPPERPOT_MACHINES);
 
 require_once "classes/pepperpot.php";
 PepperPot::register();
@@ -43,7 +43,7 @@ foreach($config as $name => $info) {
 			if($use_cache && file_exists($cache_file)) {
 				$data = json_decode(file_get_contents($cache_file), true);
 				$cache = new Minion_Cache($data);
-				fprintf(STDERR, "%20s: %s\n", $name, "CACHE> loaded from {$cache_file}");
+				fprintf(STDERR, "%s: %s\n", $name, "CACHE> loaded from {$cache_file}");
 			}
 
 			// create the minion
@@ -66,7 +66,7 @@ foreach($config as $name => $info) {
 	}
 }
 
-printf("Contacted %d hosts in %dms using %dKb\n", $i, (microtime(true)-$ts)*1000, memory_get_peak_usage()/1024);
+printf("\nContacted %d hosts in %dms using %dKb\n", $i, (microtime(true)-$ts)*1000, memory_get_peak_usage()/1024);
 
 function _fail($message, $code=1) {
 	global $argv;
