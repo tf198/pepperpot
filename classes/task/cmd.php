@@ -153,7 +153,7 @@ class Task_Cmd extends Task_Base {
 	 */
 	function latency() {
 		$ts = microtime(true);
-		$result = $this->minion->task('cmd')->_system("echo Latency test", $ret);
+		$result = $this->minion->task('cmd')->system("echo Latency test", $ret);
 		if($result != 'Latency test') throw new Task_Exception("Unexpected output: {$result}");
 		return microtime(true) - $ts;
 	}

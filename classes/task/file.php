@@ -82,6 +82,7 @@ class Task_File extends Task_Base {
 	 * @param string|bool $user		run as user (default: false)
 	 */
 	function chmod($file, $mode, $user=false) {
+		if(is_string($mode)) $mode = octdec($mode);
 		$cmd = sprintf("chmod %o %s", $mode, escapeshellarg($file));
 		$this->minion->task('cmd')->run($cmd, $user);
 	}
@@ -159,6 +160,8 @@ class Task_File extends Task_Base {
 	 */
 	function ensure_installed($local, $remote, $user=false, $owner=null, $group=null, $mode=0644) {
 		$changed = false;
+		
+		if(!file_exists($local)) throw new Task_Exception("No such file: 'local:{$local}'");
 		
 		// install the file if necessary
 		if($this->diff($local, $remote, true, $user)) {
