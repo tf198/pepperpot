@@ -87,30 +87,29 @@ API usage
 ::
 
 	<?php
+	// a basic autoloader - use your own if required
+	require_once "classes/pepperpot.php";
+	PepperPot::register();
    
-   // a basic autoloader - use your own if required
-   require_once "classes/pepperpot.php";
-   PepperPot::register();
-   
-   // Minions are configure via an array of basic info
+	// Minions are configure via an array of basic info
 	$info = array('host' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
 	$minion = new Minion($info);
 	
-   // speck calls a component and caches the result as appropriate
+	// speck calls a component and caches the result as appropriate
 	echo $minion->speck('system.hostname');
    
-   // you can invoke actions using the task method directly
-   $minion->task('service')->ensure_running('apache2');
-   // or using key dispatch
-   $minion->invoke('service.ensure_running:bind9');
+	// you can invoke actions using the task method directly
+	$minion->task('service')->ensure_running('apache2');
+	// or using key dispatch
+	$minion->invoke('service.ensure_running:bind9');
    
-   /**
-   * optionally you can store the cache for a future run and pass it as the second argument to the constructor
-   * $data = json_decode(file_get_contents('cache.dat'), true);
-   * $cache = new Minion_Cache($data);
-   * $minion = new Minion($info, $cache);
-   */
-   file_put_contents('cache.dat', json_encode($minion->cache->data()));
+	/**
+	 * optionally you can store the cache for a future run and pass it as the second argument to the constructor
+	 * $data = json_decode(file_get_contents('cache.dat'), true);
+	 * $cache = new Minion_Cache($data);
+	 * $minion = new Minion($info, $cache);
+	 */
+   	file_put_contents('cache.dat', json_encode($minion->cache->data()));
 	?>
    
 Caching
