@@ -6,7 +6,7 @@ PepperPot::register();
 abstract class Cmd_Test extends PHPUnit_Framework_TestCase {
 
 	function setUp() {
-		$this->minion = new Minion('test', array());
+		$this->minion = new Minion(array());
 		$this->cmd = new Mock_Cmd($this->minion);
 		$this->minion->_tasks['cmd'] = $this->cmd;
 	}

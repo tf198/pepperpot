@@ -7,9 +7,29 @@ state logic has been ported almost as-is but the underlying transport is complet
 
 .. _SaltStack: http://saltstack.org
 
-Warning
-=======
-This is currently under development and will probably not work as expected - please check back later!
+Status
+======
+This is currently under development but the core API is pretty fixed now.  At the moment the tasks are targeted at
+Ubuntu systems and are tested to varying degrees:
+
+===== ======================================
+xxxxx production ready (not yet!)
+xxxx  full functionality and test set
+xxx   full functionality and partial test set
+xx    partial functionality and test set
+x     partial functionality only
+===== ======================================
+
+* Cmd (xxx)
+   * SSH (xx)
+   * PHPSecLib (xxx)
+* System (xxx)
+* File (xxx)
+* Pkg (xxx)
+   * Apt (xxx)
+* Network (xxx)
+* Service (xxx)
+* User (x)
 
 Requirements
 ============
@@ -45,13 +65,14 @@ Create a ``machines.php`` file::
 	);
 	?>
 	
-Invoke a predefined task on all targets::
-
+Get the os for all targets::
 	> php run.php % system.os
 	
-Invoke a task on a set of targets::
-
+Get the hostname on targets starting with 'test'::
 	> php run.php test% system.hostname
+   
+Make sure that all webservers are running::
+   > php run.php www.% service.ensure_running:apache2
    
 If there is a folder called ``cache`` then ``run.php`` will persist cached values for the machines to this folder. 
 
@@ -66,18 +87,24 @@ API usage
    PepperPot::register();
    
    // Minions are configure via an array of basic info
-	$info = array('ip' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
-	$minion = new Minion("My Minion", $info);
+	$info = array('host' => '10.0.0.1', 'port' => 22, 'username' => 'bob', 'password' => 'secretpass');
+	$minion = new Minion($info);
 	
    // speck calls a component and caches the result as appropriate
 	echo $minion->speck('system.hostname');
    
+   // you can invoke actions using the task method directly
+   $minion->task('service')->ensure_running('apache2');
+   // or using key dispatch
+   $minion->invoke('service.ensure_running:bind9');
+   
    /**
-   * optionally you can store the cache for a future run and pass it as the third argument to the constructor
-   * $cache = unserialize(file_get_contents('cache.dat'));
-   * $minion = new Minion($name, $info, $cache);
+   * optionally you can store the cache for a future run and pass it as the second argument to the constructor
+   * $data = json_decode(file_get_contents('cache.dat'), true);
+   * $cache = new Minion_Cache($data);
+   * $minion = new Minion($info, $cache);
    */
-   file_put_contents('cache.dat', serialize($minion->cache));
+   file_put_contents('cache.dat', json_encode($minion->cache->data()));
 	?>
    
 Caching
@@ -89,19 +116,28 @@ You can manually expire a cached value by calling ``$minion->cache->delete('syst
 on the system.  As in the above example, the cache can be persisted between sessions which drastically reduces the number of commands
 that need to be executed.
 
-Tasks and states should take full advantage of the caching system for pre-requisites.
+speck() vs invoke()
+===================
+Both functions take a single argument ``key`` in the form ``task.method:arg1:arg2:...`` and will run the method specified with
+the arguments provided, but they differ in how they cache the result.
+
+``speck($key, $ignore_cache=false)`` will return a cached value for a key if possible unless ``$ignore_cache`` is set.  If no current cache value is available
+it will execute the method, cache the result and return it.
+
+``invoke($key, $timestamp=null)`` calls the method requested unless there has been a call to the same key since the optional ``$timestamp``.  The call
+will be timestamped in the cache.  This is useful for run-once actions like ``mysql.setup`` or states like ``mysql.ensure_setup``
 
 Tasks
 =====
 
 Tasks can do one of three things:
 
-1) Return a small piece of information about the system.  The method implementation should include a cache time settings and users should
+1) **speck**: Returns a small piece of information about the system.  The method implementation should include a cache time settings and users should
 try to call them using the ``speck()`` interface to take advantage of the caching. Examples are ``system.os`` and ``network.mac:eth0``
 
-2) Perform a specific action.  This should be kept as small as possible, with the majority mapping to a single system call on the remote machine
+2) **action**: Perform a specific action.  This should be kept as small as possible, with the majority mapping to a single system call on the remote machine
 e.g. ``$minion->task('file')->chmod('/etc/motd', 0644)`` or ``$minion->task('service')->start('apache2')``
 
-3) Bring the system to a specific state.  These are more compicated methods that check existing conditions and act accordingly.  By convention they
+3) **state**: Bring the system to a specific state.  These are more compicated methods that check existing conditions and act accordingly.  By convention they
 should be prefixed with ``ensure_`` e.g. ``service.ensure_running:apache2``.  They can make decisions based on cached values by using ``speck()`` or
 forcing a remote call.

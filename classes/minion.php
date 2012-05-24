@@ -31,12 +31,11 @@ class Minion {
   static $logger = null;
   
   /**
-   * @param 	string				$name	identifier used for logging
    * @param 	multitype:string	$config core params (host, username, password etc)
    * @param 	MinionCache			$cache	optional cache object for persistance
    */
-  function __construct($name, $config, $cache=null) {
-    $this->name = $name;
+  function __construct($config, $cache=null) {
+    $this->name = isset($config['id']) ? $config['id'] : 'Unknown';
     $this->cache = $cache ? $cache : new Minion_Cache();
     foreach ($config as $key => $value) {
       $this->cache->set('config.' . $key, $value, Minion_Cache::CACHE_PRIVATE);
@@ -93,10 +92,15 @@ class Minion {
   /**
    * Call a **state** or an **action** method by key
    * Stores the current timestamp 
-   * @param string	$uri
+   * @param string $key		action or state key
+   * @param int	$timestamp	skip if has run more recently than this
    * @return mixed
    */
-  function invoke($key) {
+  function invoke($key, $timestamp=null) {
+  	if($timestamp !== null && $this->timestamp($key) > $timestamp) {
+  		return $this->get($key);
+  	}
+  	
   	list($task, $method, $params) = self::parse_uri($key);
     $t = $this->task($task);
     $result = call_user_func_array(array($t, $method), $params);

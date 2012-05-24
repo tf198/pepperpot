@@ -108,7 +108,7 @@ class Minion_Cache {
 	 * Get a copy of the cache with all the CACHE_PRIVATE data removed
 	 * @return	multitype:array
 	 */
-	function get_data() {
+	function data() {
 		$result = array();
 		foreach($this->_cache as $key=>$value) {
 			if($value[1] != self::CACHE_PRIVATE) $result[$key] = $value;

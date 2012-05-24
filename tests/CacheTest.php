@@ -43,7 +43,7 @@ class Cache_Test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array('private', 'hour', 'infinite'), $this->cache->keys());
     
     // check that private keys are removed for persisting
-    $this->assertEquals(array('hour', 'infinite'), array_keys($this->cache->get_data()));
+    $this->assertEquals(array('hour', 'infinite'), array_keys($this->cache->data()));
   }
   
   function testSleep() {
