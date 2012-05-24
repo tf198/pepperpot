@@ -2,6 +2,7 @@
 /**
  * File operation tasks
  * @author Tris Forster
+ * @package PepperPot/Task
  */
 class Task_File extends Task_Base {
 

@@ -3,6 +3,7 @@
 /**
  * Task for system interaction
  * @author Tris Forster
+ * @package PepperPot/Task
  */
 class Task_Cmd extends Task_Base {
 

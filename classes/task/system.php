@@ -2,6 +2,7 @@
 /**
  * Basic information about a system
  * @author Tris Forster
+ * @package PepperPot/Task
  */
 class Task_System extends Task_Base {
 	public $cache_time = array(

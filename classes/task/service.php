@@ -2,6 +2,7 @@
 /**
  * Service tasks using init scripts
  * @author Tris Forster
+ * @package PepperPot/Task
  */
 class Task_Service extends Task_Base {
 	

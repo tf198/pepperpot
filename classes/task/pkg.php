@@ -3,6 +3,7 @@
 /**
  * Abstract package manager Task
  * @author Tris Forster
+ * @package PepperPot/Task
  */
 abstract class Task_Pkg extends Task_Base {
 

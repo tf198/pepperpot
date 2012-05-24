@@ -3,11 +3,12 @@
 /**
  * Tasks can contain methods that are divided into three groups
  * 
- * speck:  Returns information about the system.  May be cached according to policy
- * action: Do something e.g. start a service or delete a file
- * state:  Ensure a specific outcome, only performing actions as neccessary
+ * - **speck**:  Returns information about the system.  May be cached according to policy 
+ * - **action**: Do something e.g. start a service or delete a file
+ * - **state**:  Ensure a specific outcome, only performing actions as neccessary
  * 
  * @author Tris Forster
+ * @package PepperPot/Task
  */
 abstract class Task_Base {
 	

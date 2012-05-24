@@ -1,5 +1,9 @@
 <?
-
+/**
+ * SSH2lib command implementation
+ * @author Tris Forster
+ * @package PepperPot/Task
+ */
 class Task_SSH extends Task_Cmd {
   private $ssh;
 

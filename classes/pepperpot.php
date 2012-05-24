@@ -4,7 +4,7 @@
  * Basic autoloader for PepperPot classes
  * Note: PepperPot DOES NOT yet follow PSR-0, but will soon
  * @author Tris Forster
- *
+ * @package PepperPot
  */
 class PepperPot {
 	
