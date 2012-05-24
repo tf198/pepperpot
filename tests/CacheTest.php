@@ -6,18 +6,14 @@ class_exists('Minion');
 
 class Cache_Test extends PHPUnit_Framework_TestCase {
   
-  private $data = array(
-      array('never', 'one', Minion_Cache::CACHE_NEVER),
-      array('private', 'secret', Minion_Cache::CACHE_PRIVATE),
-      array('session', 3, Minion_Cache::CACHE_SESSION),
-      array('short', 'four', 1),
-      array('hour', 5, Minion_Cache::CACHE_HOUR),
-      array('infinite', 'six', Minion_Cache::CACHE_INFINITE),
-  );
-  
   function setUp() {
     $this->cache = new Minion_Cache();
-    foreach($this->data as $item) $this->cache->set($item[0], $item[1], $item[2]);
+    $this->cache->set('never', 'one', Minion_Cache::CACHE_NEVER);
+    $this->cache->set('private', 'secret', Minion_Cache::CACHE_PRIVATE);
+    $this->cache->set('session', 3, Minion_Cache::CACHE_SESSION);
+    $this->cache->set('short', 'four', time()+1);
+    $this->cache->set('hour', 5, time() + Minion_Cache::CACHE_HOUR);
+    $this->cache->set('infinite', 'six', Minion_Cache::CACHE_INFINITE);
   }
   
   function testDefault() {
@@ -54,6 +50,12 @@ class Cache_Test extends PHPUnit_Framework_TestCase {
     $data = serialize($this->cache);
     $this->cache = unserialize($data);
     $this->assertEquals(array('private', 'short', 'hour', 'infinite'), $this->cache->keys());
+  }
+  
+  function testTimestamp() {
+  	$now = time();
+  	$this->cache->set('test1', 'value', $now);
+  	$this->assertEquals($now, $this->cache->get_expiry('test1'));
   }
   
 }

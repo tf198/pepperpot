@@ -2,6 +2,7 @@
 
 /**
  * A system instance - ready to do your bidding
+ * @package PepperPot
  */
 class Minion {
   
@@ -19,7 +20,7 @@ class Minion {
 
   /**
    * Persistance object
-   * @var MinionCache
+   * @var Minion_Cache
    */
   public $cache;
   
@@ -41,6 +42,19 @@ class Minion {
       $this->cache->set('config.' . $key, $value, Minion_Cache::CACHE_PRIVATE);
   	}
   }
+  
+  /**
+   * Generate a key, taking care to escape arguments
+   * @param string $accessor
+   * @param string $arg1
+   * @param string $arg2
+   * @return string		'task.func:arg1:arg2'
+   */
+  static function key($accessor) {
+  	$args = func_get_args();
+  	foreach($args as &$arg) $arg = str_replace(':', '\\:', (string)$arg);
+  	return implode(':', $args);
+  }
 
   /**
    * Retrieve a value from the cache
@@ -56,35 +70,51 @@ class Minion {
   }
   
   /**
-   * Specks are cachable task results
+   * Get a **speck** by key
    * @param 	string 	$key	item key e.g. system.os
+   * @param		boolean	$ignore_cache	ignore any cached value
    * @return 	mixed
    */
-  function speck($key) {
-    if($this->cache->contains($key)) {
+  function speck($key, $ignore_cache=false) {
+    if($this->cache->contains($key) && !$ignore_cache) {
       return $this->cache->get($key);
     }
     
     list($task, $method, $params) = self::parse_uri($key);
     $t = $this->task($task);
     $result = call_user_func_array(array($t, $method), $params);
-    $cache_time = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
+    $expiry = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
+    if($expiry > 0) $expiry += time();
     
-    
-    $this->cache->set($key, $result, $cache_time);
+    $this->cache->set($key, $result, $expiry);
     return $result;
   }
   
   /**
-   * Dispatch a uri in the same format as speck() but without caching it
+   * Call a **state** or an **action** method by key
+   * Stores the current timestamp 
    * @param string	$uri
    * @return mixed
    */
-  function dispatch($uri) {
-  	list($task, $method, $params) = self::parse_uri($uri);
-  	$result = call_user_func_array(array($this->task($task), $method), $params);
-  	
-  	return $result;
+  function invoke($key) {
+  	list($task, $method, $params) = self::parse_uri($key);
+    $t = $this->task($task);
+    $result = call_user_func_array(array($t, $method), $params);
+    
+    
+    $this->cache->set($key, $result, time());
+    return $result;
+  }
+  
+  /**
+   * Get the time of the last invoke(key) call
+   * @param string $key
+   * @return int				time of last run or 0 for unknown
+   */
+  function timestamp($key) {
+  	$expires = $this->cache->get_expiry($key);
+  	if($expires < 0) $expires = 0;
+  	return $expires;
   }
   
   /**
