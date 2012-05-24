@@ -6,7 +6,7 @@ class Task_Network extends Task_Base {
   function raw() {
     switch($this->minion->speck('system.os')) {
       case 'ubuntu':
-        $data = $this->minion->task('cmd')->run_stdout("ip addr");
+        $data = $this->cmd->run_stdout("ip addr");
         return $this->_parse_ip_addr($data);
       default:
         throw new Task_NotImplemented();
@@ -36,7 +36,7 @@ class Task_Network extends Task_Base {
   function dns_servers() {
     switch($this->minion->speck('system.kernel')) {
       case 'linux':
-        $data = $this->minion->task('cmd')->run_stdout('cat /etc/resolv.conf');
+        $data = $this->cmd->run_stdout('cat /etc/resolv.conf');
         $result = array();
         foreach($data as $line) {
           $parts = explode(' ', $line, 2);

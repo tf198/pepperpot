@@ -31,6 +31,13 @@ abstract class Task_Base {
 	public $cache_time = array();
 
 	/**
+	 * Store an instance of Task_Cmd on every Task
+	 * @var Task_Cmd
+	 */
+	public $cmd;
+	
+	
+	/**
 	 * Create a new Task with a reference to the current Minion
 	 * @param Minion $minion
 	 */
@@ -38,8 +45,9 @@ abstract class Task_Base {
 		$this->minion = $minion;
 		// check the required packages are installed
 		foreach($this->packages as $package) $this->minion->task('pkg')->ensure_installed($package);
+		$this->cmd = ($this instanceof Task_Cmd) ? $this : $this->minion->task('cmd');
 	}
-
+	
 	/**
 	 * Get a Task instance
 	 * Allows different Task classes to be loaded depending on target

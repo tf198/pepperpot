@@ -13,4 +13,20 @@ class MinionTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('task.func:one:2', Minion::key('task.func', 'one', 2));
 		$this->assertEquals('task.func:first\\:arg:second\\:\\:arg', Minion::key('task.func', 'first:arg', 'second::arg'));
 	}
+	
+	function testEscape() {
+		$minion = new Minion(array('local' => true));
+		$minion->cache->set('system.kernel', 'linux', 0);
+		
+		$cmd = $minion->task('cmd');
+		
+		$this->assertEquals("'hello'", $cmd->escape('hello'));
+		$this->assertEquals("'hello t\\' you'", $cmd->escape('hello t\' you'));
+		
+		$minion->cache->set('system.kernel', 'windows_nt', 0);
+		$cmd->_ec = null;
+		
+		$this->assertEquals('"hello"', $cmd->escape('hello'));
+		$this->assertEquals('"hello t\\" you"', $cmd->escape('hello t" you'));
+	}
 }

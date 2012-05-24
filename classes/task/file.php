@@ -25,7 +25,7 @@ class Task_File extends Task_Base {
 	 */
 	function md5sum($file, $user=false) {
 		try {
-			$output = $this->minion->task('cmd')->run("md5sum " . escapeshellarg($file), $user);
+			$output = $this->cmd->run("md5sum " . $this->cmd->escape($file), $user);
 			return substr($output, 0, 32);
 		} catch(Task_Exception $e) {
 			return "";
@@ -49,7 +49,7 @@ class Task_File extends Task_Base {
 		if($brief) return true;
 		
 		$tmp = tempnam(sys_get_temp_dir(), 'diff_');
-		$this->minion->task('cmd')->copy_from($remote, $tmp, $user);
+		$this->cmd->copy_from($remote, $tmp, $user);
 		
 		$cmd = sprintf("diff -u %s %s", escapeshellarg($local), escapeshellarg($tmp));
 		exec($cmd, $output, $ret);
@@ -71,7 +71,7 @@ class Task_File extends Task_Base {
 		$o = ($owner) ? escapeshellcmd($owner) : "";
 		if($group) $o .= "." . escapeshellcmd($group);
 		if(!$o) throw new Task_Exception("Require at least one of owner or group");
-		$this->minion->task('cmd')->run("chown {$o} " . escapeshellarg($file), $user);
+		$this->cmd->run("chown {$o} " . $this->cmd->escape($file), $user);
 	}
 	
 	/**
@@ -83,8 +83,8 @@ class Task_File extends Task_Base {
 	 */
 	function chmod($file, $mode, $user=false) {
 		if(is_string($mode)) $mode = octdec($mode);
-		$cmd = sprintf("chmod %o %s", $mode, escapeshellarg($file));
-		$this->minion->task('cmd')->run($cmd, $user);
+		$cmd = sprintf("chmod %o %s", $mode, $this->cmd->escape($file));
+		$this->cmd->run($cmd, $user);
 	}
 
 	/**
@@ -129,7 +129,7 @@ class Task_File extends Task_Base {
 	 * @return string
 	 */
 	function attr($file, $attr, $user=false) {
-		return $this->minion->task('cmd')->run("stat -c \"{$attr}\" " . escapeshellarg($file), $user);
+		return $this->cmd->run("stat -c \"{$attr}\" " . $this->cmd->escape($file), $user);
 	}
 	
 	/**
@@ -142,7 +142,7 @@ class Task_File extends Task_Base {
 	function stat($file, $user=false) {
 		$format = "%D %i 0 %h %u %g 0 %s %X %Y %Z %B %b";
 		
-		$line = $this->minion->task('cmd')->run("stat -c \"{$format}\" " . escapeshellarg($file), $user);
+		$line = $this->cmd->run("stat -c \"{$format}\" " . $this->cmd->escape($file), $user);
 		$data = sscanf($line, "%x %d %x %d %d %d %x %d %d %d %d %d %d");
 		$keys = array('dev', 'ino', 'mode', 'nlink', 'uid', 'gid', 'rdev', 'size', 'atime', 'mtime', 'ctime', 'blksize', 'blocks');
 		return array_combine($keys, $data);
@@ -165,7 +165,7 @@ class Task_File extends Task_Base {
 		
 		// install the file if necessary
 		if($this->diff($local, $remote, true, $user)) {
-			$this->minion->task('cmd')->copy_to($local, $remote, $mode, $user);
+			$this->cmd->copy_to($local, $remote, $mode, $user);
 			$this->minion->log("New version of '{$remote}' installed");
 			$changed = true;
 		}
@@ -176,7 +176,7 @@ class Task_File extends Task_Base {
 		if($owner && $owner != $current[0]) $o = escapeshellcmd($owner);
 		if($group && $group != $current[1]) $o .= "." . escapeshellcmd($group);
 		if($o) {
-			$this->minion->task('cmd')->run("chown {$o} " . escapeshellarg($remote), $user);
+			$this->cmd->run("chown {$o} " . $this->cmd->escape($remote), $user);
 			$changed = true;
 		}
 		

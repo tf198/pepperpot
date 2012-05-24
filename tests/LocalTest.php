@@ -64,7 +64,7 @@ EOF;
 		$this->assertEquals('sudo -n mycommand', $this->cmd->run_as('mycommand'));
 		$this->assertEquals('mycommand', $this->cmd->run_as('mycommand', false));
 		$this->assertEquals('sudo -n mycommand', $this->cmd->run_as('mycommand', true));
-		$this->assertEquals('sudo -n -u bob mycommand', $this->cmd->run_as('mycommand', 'bob'));
+		$this->assertEquals("sudo -n -u 'bob' mycommand", $this->cmd->run_as('mycommand', 'bob'));
 		$this->assertEquals('sudo -n mycommand', $this->cmd->run_as('mycommand', 'root'));
 		$this->assertEquals('sudo -n mycommand', $this->cmd->run_as('mycommand', 1));
 	}
@@ -74,7 +74,7 @@ EOF;
 		$this->cmd->session = <<< EOF
 $ command1
 $ sudo -n command1
-$ sudo -n -u bob command1
+$ sudo -n -u 'bob' command1
 $ command2
 one
 $ command3
@@ -114,7 +114,7 @@ one
 two
 three
 $ sudo -n command3
-$ sudo -n -u bob command4
+$ sudo -n -u 'bob' command4
 $ badcommand
 $?=1
 $ badcommand
@@ -139,14 +139,14 @@ EOF;
 	function testCopyTo() {
 		$this->cmd->load('ubuntu');
 		$this->cmd->session = <<< EOF
-$ cp "local/test1" "remote/test1"
-$ chmod 644 "remote/test1"
-$ cp "local/test1" "remote/test1"
-$ chmod 755 "remote/test1"
-$ sudo -n cp "local/test1" "remote/test1"
-$ sudo -n chmod 644 "remote/test1"
-$ sudo -n -u bob cp "local/test1" "remote/test1"
-$ sudo -n -u bob chmod 644 "remote/test1"
+$ cp 'local/test1' 'remote/test1'
+$ chmod 644 'remote/test1'
+$ cp 'local/test1' 'remote/test1'
+$ chmod 755 'remote/test1'
+$ sudo -n cp 'local/test1' 'remote/test1'
+$ sudo -n chmod 644 'remote/test1'
+$ sudo -n -u 'bob' cp 'local/test1' 'remote/test1'
+$ sudo -n -u 'bob' chmod 644 'remote/test1'
 EOF;
 		$this->cmd->copy_to('local/test1', 'remote/test1');
 		$this->cmd->copy_to('local/test1', 'remote/test1', 0755);
@@ -157,14 +157,14 @@ EOF;
 	function testCopyFrom() {
 		$this->cmd->load('ubuntu');
 		$this->cmd->session = <<< EOF
-$ cp "remote/test2" "local/test2"
-$ chmod 644 "local/test2"
-$ cp "remote/test2" "local/test2"
-$ chmod 755 "local/test2"
-$ sudo -n cp "remote/test2" "local/test2"
-$ sudo -n chmod 644 "local/test2"
-$ sudo -n -u bob cp "remote/test2" "local/test2"
-$ sudo -n -u bob chmod 644 "local/test2"
+$ cp 'remote/test2' 'local/test2'
+$ chmod 644 'local/test2'
+$ cp 'remote/test2' 'local/test2'
+$ chmod 755 'local/test2'
+$ sudo -n cp 'remote/test2' 'local/test2'
+$ sudo -n chmod 644 'local/test2'
+$ sudo -n -u 'bob' cp 'remote/test2' 'local/test2'
+$ sudo -n -u 'bob' chmod 644 'local/test2'
 EOF;
 		$this->cmd->copy_from('remote/test2', 'local/test2');
 		$this->cmd->copy_from('remote/test2', 'local/test2', 0755);

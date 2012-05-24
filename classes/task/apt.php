@@ -3,15 +3,15 @@
 class Task_Apt extends Task_Pkg {
 
   function reload() {
-    $this->minion->task('cmd')->run('apt-get update', true);
+    $this->cmd->run('apt-get update', true);
   }
 
   function install($name) {
-    $this->minion->task('cmd')->run('apt-get -y install ' . escapeshellarg($name), true);
+    $this->cmd->run('apt-get -y install ' . $this->cmd->escape($name), true);
   }
 
   function available($name) {
-    $output = $this->minion->task('cmd')->run_stdout('apt-cache show ' . escapeshellarg($name));
+    $output = $this->cmd->run_stdout('apt-cache show ' . $this->cmd->escape($name));
     foreach ($output as $line) {
       if (substr($line, 0, 8) == 'Version:') {
         return trim(substr($line, 9));
@@ -36,8 +36,8 @@ class Task_Apt extends Task_Pkg {
   function dpkg($query=null) {
     $cmd = "dpkg -l";
     if ($query)
-      $cmd .= " " . escapeshellarg($query);
-    $data = $this->minion->task('cmd')->run_stdout($cmd);
+      $cmd .= " " . $this->cmd->escape($query);
+    $data = $this->cmd->run_stdout($cmd);
     $markers = explode('-', $data[4]);
     for ($i = 0; $i < 4; $i++)
       $markers[$i] = strlen($markers[$i]) + 1;

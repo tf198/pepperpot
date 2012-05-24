@@ -78,8 +78,8 @@ class Task_Service extends Task_Base {
 	public function status($name, $binary=null) {
 		
 		// first try the init script
-		$cmd = $this->minion->task('cmd')->run_as("{$this->base}/{$name} status", true);
-		$output = $this->minion->task('cmd')->system($cmd, $ret);
+		$cmd = $this->cmd->run_as("{$this->base}/{$name} status", true);
+		$output = $this->cmd->system($cmd, $ret);
 		if($ret == 0) return true;
 		if($ret == 4) return false; // think this is standard (?)
 		if($output == "{$name} is not running") return false;
@@ -101,7 +101,7 @@ class Task_Service extends Task_Base {
 	 */
 	public function enabled($name, $runlevel=2) {
 		$cmd = sprintf("ls /etc/rc%d.d | grep -e \"S[0-9]\\+%s\\$\"", $runlevel, escapeshellcmd($name));
-		return $this->minion->task('cmd')->run_ret($cmd);
+		return $this->cmd->run_ret($cmd);
 	}
 	
 	/**
@@ -110,7 +110,7 @@ class Task_Service extends Task_Base {
 	 * @param string $name
 	 */
 	public function enable($name) {
-		$this->minion->task('cmd')->run("update-rc.d {$name} defaults", true);
+		$this->cmd->run("update-rc.d {$name} defaults", true);
 	}
 	
 	/**
@@ -119,7 +119,7 @@ class Task_Service extends Task_Base {
 	 * @param service $name
 	 */
 	public function disable($name) {
-		$this->minion->task('cmd')->run("update-rc.d -f {$name} remove", true);
+		$this->cmd->run("update-rc.d -f {$name} remove", true);
 	}
 	
 	/**
@@ -129,7 +129,7 @@ class Task_Service extends Task_Base {
 	 * @param string $action	action (start|stop|restart|status|reload)
 	 */
 	public function run($name, $action) {
-		return $this->minion->task('cmd')->run("{$this->base}/{$name} {$action}", true);
+		return $this->cmd->run("{$this->base}/{$name} {$action}", true);
 	}
 	
 	/**

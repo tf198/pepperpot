@@ -2,7 +2,7 @@
 class Task_User extends Task_Base {
 	public function getpw($user) {
 		$user = escapeshellcmd($user);
-		$line = $this->minion->task('cmd')->run("grep \"^{$user}:\" /etc/passwd");
+		$line = $this->cmd->run("grep \"^{$user}:\" /etc/passwd");
 		$parts = explode(':', $line);
 		return array(
 				'user' 	=> $parts[0],
@@ -20,15 +20,15 @@ class Task_User extends Task_Base {
 	}
 	
 	public function names() {
-		return $this->minion->task('cmd')->run_stdout('cut -d: -f1 /etc/passwd');
+		return $this->cmd->run_stdout('cut -d: -f1 /etc/passwd');
 	}
 	
 	public function groups($user=null) {
 		if($user == null) {
-			return $this->minion->task('cmd')->run_stdout('cut -d: -f1 /etc/group');
+			return $this->cmd->run_stdout('cut -d: -f1 /etc/group');
 		}
 		
-		$line = $this->minion->task('cmd')->run('groups ' . escapeshellarg($user));
+		$line = $this->cmd->run('groups ' . $this->cmd->escape($user));
 		$parts = explode(' : ', $line);
 		return explode(' ', $parts[1]);
 	}

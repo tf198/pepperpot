@@ -25,9 +25,9 @@ class Task_System extends Task_Base {
 		if($this->minion->speck('system.kernel')=='windows_nt') return 'windows';
 
 		// ubuntu - a bit tricky actually
-		$this->minion->task('cmd')->system('test -f /etc/issue.net', $ret);
+		$this->cmd->system('test -f /etc/issue.net', $ret);
 		if($ret==0) {
-			$version = $this->minion->task('cmd')->run('cat /etc/issue.net');
+			$version = $this->cmd->run('cat /etc/issue.net');
 			if(substr($version, 0, 6) == 'Ubuntu') return 'ubuntu';
 		}
 
@@ -40,10 +40,10 @@ class Task_System extends Task_Base {
 	 * @return string		e.g. windows_nt, linux
 	 */
 	function kernel() {
-		$env = $this->minion->task('cmd')->run('echo %OS%');
+		$env = $this->cmd->run('echo %OS%');
 		if($env != "%OS%") return strtolower($env);
 
-		return strtolower($this->minion->task('cmd')->run('uname -s'));
+		return strtolower($this->cmd->run('uname -s'));
 	}
 
 	/**
@@ -54,9 +54,9 @@ class Task_System extends Task_Base {
 	function kernel_version() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
-				return $this->minion->task('cmd')->run('uname -r');
+				return $this->cmd->run('uname -r');
 			case 'windows_nt':
-				$data = $this->minion->task('cmd')->run('cmd /c ver');
+				$data = $this->cmd->run('cmd /c ver');
 				if(!preg_match('/^Microsoft Windows (.*)\[Version ([0-9\.]+)\]$/', $data, $matches)) throw new Task_Exception("Failed to parse version: {$data}");
 				return $matches[2];
 			default:
@@ -73,12 +73,12 @@ class Task_System extends Task_Base {
 	function cpuinfo() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
-				$data = $this->minion->task('cmd')->run_stdout('cat /proc/cpuinfo');
+				$data = $this->cmd->run_stdout('cat /proc/cpuinfo');
 				$raw = $this->_parse_keypairs($data, ':');
 				return $raw;
 				
 			case 'windows_nt':
-				$data = $this->minion->task('cmd')->run_stdout('wmic cpu');
+				$data = $this->cmd->run_stdout('wmic cpu');
 				$len = strlen($data[0]);
 				$start = 0;
 				$raw = array();
@@ -133,7 +133,7 @@ class Task_System extends Task_Base {
 	function meminfo() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
-				$data = $this->minion->task('cmd')->run_stdout('head -n 5 /proc/meminfo');
+				$data = $this->cmd->run_stdout('head -n 5 /proc/meminfo');
 				$raw = array();
 				foreach($data as $line) {
 					list($key, $value) = explode(':', $line, 2);
@@ -181,7 +181,7 @@ class Task_System extends Task_Base {
 	 */
 	function hostname() {
 		// same for everything I think
-		return $this->minion->task('cmd')->run('hostname');
+		return $this->cmd->run('hostname');
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Task_System extends Task_Base {
 	function time() {
 		switch($this->minion->speck('system.kernel')) {
 			case 'linux':
-				$date = $this->minion->task('cmd')->run('date -R');
+				$date = $this->cmd->run('date -R');
 				return strtotime($date);
 			default:
 				throw new Task_NotImplemented();
@@ -206,7 +206,7 @@ class Task_System extends Task_Base {
 	 * @return multitype:string
 	 */
 	function uptime() {
-		$data = $this->minion->task('cmd')->run('uptime');
+		$data = $this->cmd->run('uptime');
 		if(!preg_match('/up\s+([0-9\:]+),\s+(\d+) users?,\s+load average: ([0-9\.]+), ([0-9\.]+), ([0-9\.]+)$/', $data, $matches)) {
 			throw new Task_Exception("Failed to parse uptime");
 		}
@@ -256,7 +256,7 @@ class Task_System extends Task_Base {
 	 * @return multitype:int
 	 */
 	function ps($name) {
-		$this->minion->task('cmd')->exec('ps -C ' . escapeshellarg($name), $output, $ret);
+		$this->cmd->exec('ps -C ' . $this->cmd->escape($name), $output, $ret);
 		$result = array();
 		for($i=1, $c=count($output); $i<$c; $i++) {
 			$result[] = (int)$output[$i];

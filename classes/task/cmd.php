@@ -71,10 +71,10 @@ class Task_Cmd extends Task_Base {
 		 
 		if ($this->minion->speck('system.os') == 'windows') {
 			if($user === true) $user = "Administrator";
-			return sprintf("runas /User:%s %s", escapeshellarg($user, $cmd));
+			return sprintf("runas /User:%s %s", $this->escape($user), $cmd);
 		} else {
 			$sudo = "sudo -n ";
-			if(is_string($user) && $user!='root') $sudo .= "-u " . escapeshellcmd($user) . " ";
+			if(is_string($user) && $user!='root') $sudo .= "-u " . $this->escape($user) . " ";
 			return $sudo . $cmd;
 		}
 	}
@@ -127,11 +127,11 @@ class Task_Cmd extends Task_Base {
 	 * @throws Task_Exception
 	 */
 	function copy_to($local, $remote, $create_mode=0644, $user=false) {
-		$this->run(sprintf("cp %s %s", escapeshellarg($local), escapeshellarg($remote)), $user);
+		$this->run(sprintf("cp %s %s", $this->escape($local), $this->escape($remote)), $user);
 		if($this->minion->speck('system.kernel') == 'windows_nt') return;
 		
 		// set the file mode
-		$this->run(sprintf("chmod %o %s", $create_mode, escapeshellarg($remote)), $user);
+		$this->run(sprintf("chmod %o %s", $create_mode, $this->escape($remote)), $user);
 	}
 
 	/**
@@ -153,9 +153,23 @@ class Task_Cmd extends Task_Base {
 	 */
 	function latency() {
 		$ts = microtime(true);
-		$result = $this->minion->task('cmd')->system("echo Latency test", $ret);
+		$result = $this->cmd->system("echo Latency test", $ret);
 		if($result != 'Latency test') throw new Task_Exception("Unexpected output: {$result}");
 		return microtime(true) - $ts;
+	}
+	
+	public $_ec;
+	
+	/**
+	 * Escape shell argument for target system
+	 * @param string $arg
+	 * @return string
+	 */
+	function escape($arg) {
+		if(!$this->_ec) {
+			$this->_ec = ($this->minion->speck('system.kernel') == 'windows_nt') ? '"' : '\'';
+		}
+		return $this->_ec . str_replace($this->_ec, '\\' . $this->_ec, $arg) . $this->_ec;
 	}
 
 	static function handler($instance, $klass=null) {
@@ -170,7 +184,7 @@ class Task_Cmd extends Task_Base {
 	static function construct($cmd) {
 		$args = func_get_args();
 		for($i=0, $c=count($args); $i<$c; $i++) {
-			if(substr($args[$i], 0, 1) != '-') $args[$i] = escapeshellarg($args[$i]);
+			if(substr($args[$i], 0, 1) != '-') $args[$i] = $this->escape($args[$i]);
 		}
 		return implode(' ', $args);
 	}

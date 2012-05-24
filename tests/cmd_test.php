@@ -11,6 +11,10 @@ abstract class Cmd_Test extends PHPUnit_Framework_TestCase {
 		$this->minion->_tasks['cmd'] = $this->cmd;
 	}
 	
+	function tearDown() {
+		$this->assertEndOfStream();
+	}
+	
 	function assertEndOfStream() {
 		$this->assertTrue($this->cmd->endofstream());
 	}

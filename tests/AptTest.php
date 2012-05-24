@@ -4,14 +4,6 @@ require_once('cmd_test.php');
 
 class TaskAptTest extends Cmd_Test {
 
-  private $dpkg = array(
-      '', '', '',
-      '    Name        Version     Description          ',
-      '+++-===========-===========-=====================',
-      'ii  package1    1.0.1       Dummy package 1      ',
-      'ii  package2    1.0.2       Dummy package 2      ',
-  );
-
   function setUp() {
   	parent::setUp();
   	$this->cmd->load('ubuntu');
@@ -28,7 +20,7 @@ EOF;
 
   function testAvailable() {
     $this->cmd->session = <<< EOF
-$ apt-cache show "mypackage"
+$ apt-cache show 'mypackage'
 Name: MyPackage
 Version: 1.0.2
 Description: My Dummy package
@@ -39,7 +31,7 @@ EOF;
 
   function testCurrent() {
     $this->cmd->session = <<< EOF
-$ dpkg -l "package1"
+$ dpkg -l 'package1'
 Desired  ...
 | Status ...
 |\ Err   ...
@@ -52,31 +44,31 @@ EOF;
   }
 
   function testInstall() {
-    $this->cmd->session = '$ sudo -n apt-get -y install "mypackage"';
+    $this->cmd->session = "$ sudo -n apt-get -y install 'mypackage'";
     $this->minion->task('apt')->install('mypackage');
   }
 
   function testUpToDate() {
     $this->cmd->session = <<< EOF
-$ dpkg -l "package1"
+$ dpkg -l 'package1'
 Desired  ...
 | Status ...
 |\ Err   ...
 Name        Version     Description
 +++-===========-===========-=====================
 ii  package1    1.0.1       Dummy package 1
-$ apt-cache show "package1"
+$ apt-cache show 'package1'
 ...
 Version: 1.0.1
 ...
-$ dpkg -l "package2"
+$ dpkg -l 'package2'
 Desired  ...
 | Status ...
 |\ Err   ...
 Name        Version     Description
 +++-===========-===========-=====================
 ii  package2    1.0.2       Dummy package 2
-$ apt-cache show "package2"
+$ apt-cache show 'package2'
 ...
 Version: 1.0.1
 ...
