@@ -12,16 +12,16 @@ Status
 This is currently under development but the core API is pretty fixed now.  At the moment the 
 tasks are targeted at Ubuntu systems and are tested to varying degrees::
 
-   Cmd  (xxx)
-      SSH  (xx)
-      PHPSecLib  (xxx)
-   System  (xxx)
-   File  (xxx)
-   Pkg  (xxx)
-      Apt  (xxx)
-   Network  (xxx)
-   Service  (xxx)
-   User  (x)
+   Cmd               local interactions         (xxx  )
+      SSH            libssh2                    (xx   )
+      PHPSecLib      PHP only                   (xxx  )
+   System            Hardware info              (xxx  )
+   File              File operations            (xxx  )
+   Pkg               Package manager (abstract) (xxx  )
+      Apt            Apt package manager        (xxx  )
+   Network           Network tasks              (xxx  )
+   Service           Service                    (xxx  )
+   User              User management            (x    )
    
    xxxxx production ready (not yet!)
    xxxx  full functionality and test set
