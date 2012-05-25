@@ -1,7 +1,7 @@
 <?php
 class PHPSecLibTest extends PHPUnit_Framework_TestCase {
 	function setUp() {
-		$f = fopen('Net/SSH2.php', 'r', true);
+		$f = @fopen('Net/SSH2.php', 'r', true);
 		if(!$f) $this->markTestSkipped("PHPSecLib not available on this system");
 		fclose($f);
 		
