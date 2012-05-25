@@ -1,5 +1,5 @@
 <?php
-class TaskFileTest extends MockCmd_TestCase {
+class FileTest extends MockCmd_TestCase {
 	
 	/**
 	 * @var Task_File

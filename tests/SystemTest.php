@@ -1,5 +1,5 @@
 <?
-class TaskSystemTest extends MockCmd_TestCase {
+class SystemTest extends MockCmd_TestCase {
 
   function setUp() {
   	parent::setUp();

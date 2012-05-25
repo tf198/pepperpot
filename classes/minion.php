@@ -25,7 +25,7 @@ class Minion {
   public $cache;
   
   /**
-   * Pluggable logger implementing add($level, $message) method
+   * Pluggable logger implementing log($message, $level) method
    * @var object
    */
   static $logger = null;
@@ -180,7 +180,7 @@ class Minion {
    */
   function log($message, $level=LOG_INFO) {
   	$message = sprintf("%s: %s", $this->name, $message);
-  	self::$logger && self::$logger->add($level, $message);
+  	self::$logger && self::$logger->log($message, $level);
   }
 
 }

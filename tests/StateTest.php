@@ -1,46 +1,4 @@
 <?php
-class Task_StateTest extends Task_Base {
-	public $cache_time = array(
-		'test_flag' => Minion_Cache::CACHE_FLAG,
-		'test_dynamic' => Minion_Cache::CACHE_FLAG,
-		'test_cached' => Minion_Cache::CACHE_INFINITE,
-	);
-	
-	public $_stack = array();
-	
-	function stack() {
-		$stack = $this->_stack;
-		$this->_stack = array();
-		return $stack;
-	}
-	
-	function test_noop($id) {
-		$this->_stack[] = "noop-{$id}";
-	}
-	
-	function test_flag($id, $flag) {
-		$this->_stack[] = "flag-{$id}";
-		return $flag == 'true';
-	}
-	
-	function test_dynamic($id) {
-		$this->_stack[] = "dynamic-{$id}";
-		return $GLOBALS['dynamic_' . $id];
-	}
-	
-	function test_target($id) {
-		$this->_stack[] = "target-{$id}";
-	}
-	
-	function test_cached($id) {
-		$this->_stack[] = "cached-{$id}";
-	}
-}
-
-class Logger {
-	function add($level, $message) { fputs(STDOUT, $message . "\n"); }
-}
-
 class StateTest extends PHPUnit_Framework_TestCase {
 	
 	function setUp() {
@@ -251,4 +209,46 @@ EOF;
 		
 		$this->assertEquals($states, PepperState::parse($data));
 	}
+}
+
+class Task_StateTest extends Task_Base {
+	public $cache_time = array(
+		'test_flag' => Minion_Cache::CACHE_FLAG,
+		'test_dynamic' => Minion_Cache::CACHE_FLAG,
+		'test_cached' => Minion_Cache::CACHE_INFINITE,
+	);
+	
+	public $_stack = array();
+	
+	function stack() {
+		$stack = $this->_stack;
+		$this->_stack = array();
+		return $stack;
+	}
+	
+	function test_noop($id) {
+		$this->_stack[] = "noop-{$id}";
+	}
+	
+	function test_flag($id, $flag) {
+		$this->_stack[] = "flag-{$id}";
+		return $flag == 'true';
+	}
+	
+	function test_dynamic($id) {
+		$this->_stack[] = "dynamic-{$id}";
+		return $GLOBALS['dynamic_' . $id];
+	}
+	
+	function test_target($id) {
+		$this->_stack[] = "target-{$id}";
+	}
+	
+	function test_cached($id) {
+		$this->_stack[] = "cached-{$id}";
+	}
+}
+
+class Logger {
+	function log($message, $level=LEVEL_INFO) { fputs(STDOUT, $message . "\n"); }
 }

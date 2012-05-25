@@ -1,5 +1,5 @@
 <?php 
-class TaskNetworkTest extends MockCmd_TestCase {
+class NetworkTest extends MockCmd_TestCase {
 	function testInterfaces() {
 		$this->cmd->load('ubuntu');
 		$this->cmd->session = <<< EOF

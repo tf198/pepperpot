@@ -78,7 +78,7 @@ function _fail($message, $code=1) {
 }
 
 class MinionLogger {
-	public function add($level, $message) {
+	public function log($message, $level=LOG_INFO) {
 		fputs(STDERR, $message . "\n");
 	}
 }
