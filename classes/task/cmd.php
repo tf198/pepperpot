@@ -172,13 +172,19 @@ class Task_Cmd extends Task_Base {
 		return $this->_ec . str_replace($this->_ec, '\\' . $this->_ec, $arg) . $this->_ec;
 	}
 
-	static function handler($instance, $klass=null) {
+	static function handler($minion, $klass=null) {
 
-		if (!$instance->get('config.local', false)) {
-			$klass = function_exists('ssh2_connect') ? "Task_SSH" : "Task_PHPSecLib";
-			return new $klass($instance);
+		if (!$minion->get('config.local', false)) {
+			if($transport = $minion->get('config.transport', false)) {
+				$klass = "Task_" . $transport;
+			} else {
+				$klass = function_exists('ssh2_connect') ? "Task_SSH" : "Task_PHPSecLib";
+			}
+			return new $klass($minion);
 		}
-		return new Task_Cmd($instance);
+		
+		// is local minion
+		return new Task_Cmd($minion);
 	}
 
 	static function construct($cmd) {
