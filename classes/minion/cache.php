@@ -6,8 +6,10 @@
  */
 class Minion_Cache {
 
+	const CACHE_FLAG		= -6;
+	const CACHE_RETURN		= -5;
 	const CACHE_MISSING 	= -4;
-	const CACHE_NEVER 	= -3;
+	const CACHE_NEVER 		= -3;
 	const CACHE_PRIVATE 	= -2;
 	const CACHE_SESSION 	= -1;
 	const CACHE_HOUR 		= 3600;
@@ -32,6 +34,7 @@ class Minion_Cache {
 	function contains($key) {
 		if(!isset($this->_cache[$key])) return false;
 		$expiry_time = $this->_cache[$key][1];
+		if($expiry_time == self::CACHE_FLAG) return false;
 		if($expiry_time <= 0) return true;
 		if($expiry_time > $this->now) return true;
 		return false;
@@ -111,7 +114,7 @@ class Minion_Cache {
 	function data() {
 		$result = array();
 		foreach($this->_cache as $key=>$value) {
-			if($value[1] != self::CACHE_PRIVATE) $result[$key] = $value;
+			if($value[1] > self::CACHE_PRIVATE) $result[$key] = $value;
 		}
 		return $result;
 	}

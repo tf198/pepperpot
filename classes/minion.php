@@ -75,16 +75,26 @@ class Minion {
    * @return 	mixed
    */
   function speck($key, $ignore_cache=false) {
+  	// return from cache if appropriate
     if($this->cache->contains($key) && !$ignore_cache) {
       return $this->cache->get($key);
     }
     
+    // execute the task
     list($task, $method, $params) = self::parse_uri($key);
     $t = $this->task($task);
     $result = call_user_func_array(array($t, $method), $params);
+    
+    // determine cache time for the task
     $expiry = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
+    
+    // cache time relative to now
     if($expiry > 0) $expiry += time();
     
+    // allow tasks to set their own expiry time
+    if($expiry == Minion_Cache::CACHE_RETURN) $expiry = (int) $result;
+    
+    // store for future use
     $this->cache->set($key, $result, $expiry);
     return $result;
   }
@@ -94,22 +104,29 @@ class Minion {
    * Stores the current timestamp 
    * @param string $key		action or state key
    * @param int	$timestamp	skip if has run more recently than this
-   * @return mixed
+   * @return int
    */
-  function invoke($key, $timestamp=null) {
-  	if($timestamp !== null && $this->timestamp($key) > $timestamp) {
-  		return $this->get($key);
+  /*
+  function invoke($key) {
+  	list($task, $method, $params) = self::parse_uri($key);
+  	$t = $this->task($task);
+  	
+  	$expiry = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
+  	
+  	if($expiry == Minion_Cache::CACHE_RETURN) {
+  		// execute first
+  		$timestamp = (int) call_user_func_array(array($t, $method), $params);
+  	} else {
+  		$timestamp = $this->minion->get_timestamp($key);
   	}
   	
-  	list($task, $method, $params) = self::parse_uri($key);
-    $t = $this->task($task);
     $result = call_user_func_array(array($t, $method), $params);
     
     
     $this->cache->set($key, $result, time());
     return $result;
   }
-  
+  */
   /**
    * Get the time of the last invoke(key) call
    * @param string $key
