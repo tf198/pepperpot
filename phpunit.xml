@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap='tests/bootstrap.php'>
+	<testsuites>
+		<testsuite name="PepperPot Tests">
+			<directory>tests</directory>
+		</testsuite>
+	</testsuites>
+	<php>
+		<var name='minion_host' value='192.168.100.41'/>
+		<var name='minion_user' value='modbox'/>
+		<var name='minion_pass' value='xobdom'/>
+	</php>
+</phpunit>

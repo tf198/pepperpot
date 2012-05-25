@@ -1,8 +1,5 @@
 <?
-
-require_once "cmd_test.php";
-
-class TaskSystemTest extends Cmd_Test {
+class TaskSystemTest extends MockCmd_TestCase {
 
   function setUp() {
   	parent::setUp();

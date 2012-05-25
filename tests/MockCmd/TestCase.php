@@ -1,13 +1,9 @@
 <?
-
-require_once('classes/pepperpot.php');
-PepperPot::register();
-
-abstract class Cmd_Test extends PHPUnit_Framework_TestCase {
+abstract class MockCmd_TestCase extends PHPUnit_Framework_TestCase {
 
 	function setUp() {
 		$this->minion = new Minion(array());
-		$this->cmd = new Mock_Cmd($this->minion);
+		$this->cmd = new Mock_Task_Cmd($this->minion);
 		$this->minion->_tasks['cmd'] = $this->cmd;
 	}
 	
@@ -20,7 +16,7 @@ abstract class Cmd_Test extends PHPUnit_Framework_TestCase {
 	}
 }
 
-class Mock_Cmd extends Task_Cmd {
+class Mock_Task_Cmd extends Task_Cmd {
 	
 	private $data = array();
 	

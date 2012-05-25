@@ -1,7 +1,5 @@
 <?php 
-require_once('cmd_test.php');
-
-class TaskNetworkTest extends Cmd_Test {
+class TaskNetworkTest extends MockCmd_TestCase {
 	function testInterfaces() {
 		$this->cmd->load('ubuntu');
 		$this->cmd->session = <<< EOF

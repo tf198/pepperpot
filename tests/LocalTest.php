@@ -1,7 +1,5 @@
 <?php
-require_once('cmd_test.php');
-
-class LocalTest extends Cmd_Test {
+class LocalTest extends MockCmd_TestCase {
 	
 	function testExec() {
 		$this->cmd->load('ubuntu');

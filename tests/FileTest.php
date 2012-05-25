@@ -1,7 +1,5 @@
 <?php
-require_once('cmd_test.php');
-
-class TaskFileTest extends Cmd_Test {
+class TaskFileTest extends MockCmd_TestCase {
 	
 	/**
 	 * @var Task_File

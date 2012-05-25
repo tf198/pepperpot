@@ -1,6 +1,4 @@
 <?php
-require_once('cmd_test.php');
-
 class MinionTest extends PHPUnit_Framework_TestCase {
 	
 	function testParseURI() {

@@ -1,10 +1,5 @@
 <?php
-
-require_once('classes/pepperpot.php');
-PepperPot::register();
-class_exists('Minion');
-
-class Cache_Test extends PHPUnit_Framework_TestCase {
+class CacheTest extends PHPUnit_Framework_TestCase {
   
   function setUp() {
     $this->cache = new Minion_Cache();

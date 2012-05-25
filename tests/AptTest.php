@@ -1,8 +1,5 @@
 <?
-
-require_once('cmd_test.php');
-
-class TaskAptTest extends Cmd_Test {
+class AptTest extends MockCmd_TestCase {
 
   function setUp() {
   	parent::setUp();
