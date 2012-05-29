@@ -12,13 +12,13 @@ class PepperState {
 		$this->minion = $minion;
 	}
 
-	function run($target, &$local_cache=null) {
+	function run($target, &$run_cache=null) {
 
 		$this->minion->log("{$this->indent}+ {$target}");
 		
-		if(isset($local_cache[$target])) {
+		if(isset($run_cache[$target])) {
 			$this->minion->log("{$this->indent}- {$target} (cached)");
-			return $local_cache[$target];
+			return $run_cache[$target];
 		}
 
 		list($task, $method, $params) = Minion::parse_uri($target);
@@ -38,7 +38,7 @@ class PepperState {
 
 		$this->indent = str_repeat('  ', ++$this->level);
 		foreach($deps as $dep) {
-			$run_required |= $this->run($dep, $local_cache);
+			$run_required |= $this->run($dep, $run_cache);
 		}
 		$this->indent = str_repeat('  ', --$this->level);
 
@@ -54,7 +54,7 @@ class PepperState {
 		$action = $run_required ? "REBUILT" : "up to date";
 		$this->minion->log("{$this->indent}- {$target} [{$action}]");
 		
-		$local_cache[$target] = $run_required;
+		$run_cache[$target] = $run_required;
 		return $run_required;
 	}
 	
