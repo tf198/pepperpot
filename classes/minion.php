@@ -77,6 +77,7 @@ class Minion {
   function speck($key, $ignore_cache=false) {
   	// return from cache if appropriate
     if($this->cache->contains($key) && !$ignore_cache) {
+      $this->log("speck({$key}): (cached)", LOG_DEBUG);
       return $this->cache->get($key);
     }
     
@@ -96,6 +97,7 @@ class Minion {
     
     // store for future use
     $this->cache->set($key, $result, $expiry);
+    $this->log("speck({$key}): {$expiry}", LOG_DEBUG);
     return $result;
   }
   
@@ -179,8 +181,10 @@ class Minion {
    * @param		int		$level		one of the PHP LOG_XXXX constants
    */
   function log($message, $level=LOG_INFO) {
-  	$message = sprintf("%s: %s", $this->name, $message);
-  	self::$logger && self::$logger->log($message, $level);
+  	if(self::$logger) {
+  		$message = sprintf("%s: %s", $this->name, $message);
+  		self::$logger->log($message, $level);
+  	}
   }
 
 }

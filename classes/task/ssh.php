@@ -46,13 +46,19 @@ class Task_SSH extends Task_Cmd {
 	function copy_to($local, $remote, $mode=0644, $user=false) {
 		if(!$this->ssh) $this->_connect();
 		
-		if($user) {
-			throw new Task_Exception("Not yet implemented");
+		if ($user) {
+			$dest = "/tmp/" . str_replace('/', '_', $remote);
 		} else {
 			$dest = $remote;
 		}
+		
 		if(!ssh2_scp_send($this->ssh, $local, $dest, $mode))
 			throw new Task_Exception("Failed to send file: '{$local}' > '{$remote}'");
+		
+		if($user) {
+			$this->run("mv \"{$dest}\" \"{$remote}\"", $user);
+		}
+			
 		return true;
 	}
 

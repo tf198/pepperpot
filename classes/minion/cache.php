@@ -34,8 +34,11 @@ class Minion_Cache {
 	function contains($key) {
 		if(!isset($this->_cache[$key])) return false;
 		$expiry_time = $this->_cache[$key][1];
+		// FLAG values are always expired
 		if($expiry_time == self::CACHE_FLAG) return false;
+		// other special values are always current
 		if($expiry_time <= 0) return true;
+		// check the timestamp
 		if($expiry_time > $this->now) return true;
 		return false;
 	}
@@ -92,8 +95,11 @@ class Minion_Cache {
 	function clean() {
 		$now = time();
 		foreach($this->_cache as $key => $value) {
+			// retain PRIVATE values
 			if($value[1] == self::CACHE_PRIVATE) continue;
-			if($value[1] == self::CACHE_SESSION) unset($this->_cache[$key]);
+			// remove all other special values
+			if($value[1] < 0) unset($this->_cache[$key]);
+			// check timestamp for all positive values
 			if($value[1] > 0 && $value[1] < $now) unset($this->_cache[$key]);
 		}
 	}
