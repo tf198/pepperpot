@@ -29,13 +29,12 @@ abstract class Task_Base {
 	 * @var multitype:int
 	 */
 	public $cache_time = array();
-
+	
 	/**
 	 * Store an instance of Task_Cmd on every Task
 	 * @var Task_Cmd
 	 */
 	public $cmd;
-	
 	
 	/**
 	 * Create a new Task with a reference to the current Minion
@@ -46,6 +45,10 @@ abstract class Task_Base {
 		// check the required packages are installed
 		foreach($this->packages as $package) $this->minion->task('pkg')->ensure_installed($package);
 		$this->cmd = ($this instanceof Task_Cmd) ? $this : $this->minion->task('cmd');
+	}
+	
+	function cache_time($method) {
+		return (isset($this->cache_time[$method])) ? $this->cache_time[$method] : Minion_Cache::CACHE_SESSION;
 	}
 	
 	/**

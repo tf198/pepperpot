@@ -86,7 +86,7 @@ class Minion {
     $result = call_user_func_array(array($t, $method), $params);
     
     // determine cache time for the task
-    $expiry = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
+    $expiry = $t->cache_time($method);
     
     // cache time relative to now
     if($expiry > 0) $expiry += time();

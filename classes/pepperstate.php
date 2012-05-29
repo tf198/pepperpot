@@ -42,15 +42,15 @@ class PepperState {
 		}
 		$this->indent = str_repeat('  ', --$this->level);
 
-		//$this->log("? " . var_export($run_required, true));
-
 		// run this target, forcing if any dependants were updated
 		$result = $this->minion->speck($target, $run_required);
 
-		if($this->minion->cache->get_expiry($target) == Minion_CACHE::CACHE_FLAG) {
-			//$this->log("FLAG: " . var_export($result, true));
+		$t = $this->minion->task($task);
+		if($t->cache_time($method) == Minion_Cache::CACHE_FLAG) {
 			$run_required = (bool) $result;
 		}
+		
+		
 		$action = $run_required ? "REBUILT" : "up to date";
 		$this->minion->log("{$this->indent}- {$target} [{$action}]");
 		
