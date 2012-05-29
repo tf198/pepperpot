@@ -21,6 +21,19 @@ class StateTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(array(), $this->task->stack());
 	}
 	
+	function testWildcard() {
+		$states = array(
+			'statetest.test_target:1' => array(),
+			'statetest.test_target:%' => array('statetest.test_noop:%1:23'),
+			'statetest.test_noop:%' => array('statetest.test_flag:%2:false'),
+		);
+		//Minion::$logger = new Logger;
+		$stack = new PepperState($this->minion, $states);
+		
+		$stack->run('statetest.test_target:1');
+		$this->assertEquals(array('flag-23', 'noop-1', 'target-1'), $this->task->stack());
+	}
+	
 	function testFalseFlags() {
 		$states = array(
 			'statetest.test_target:1' => array('statetest.test_target:2'),

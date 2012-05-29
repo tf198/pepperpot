@@ -21,7 +21,19 @@ class PepperState {
 			return $local_cache[$target];
 		}
 
+		list($task, $method, $params) = Minion::parse_uri($target);
+		
+		// explicit deps
 		$deps = (isset($this->states[$target])) ? $this->states[$target] : array();
+		
+		// wildcard deps
+		$key = "{$task}.{$method}:%";
+		if(isset($this->states[$key])) {
+			$tr = array();
+			for($i=0,$c=count($params); $i<$c; $i++) $tr['%' . ($i+1)] = $params[$i];
+			foreach($this->states[$key] as $dep) $deps[] = strtr($dep, $tr);
+		}
+		
 		$run_required = false;
 
 		$this->indent = str_repeat('  ', ++$this->level);
