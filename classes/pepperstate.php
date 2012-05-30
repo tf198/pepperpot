@@ -80,7 +80,7 @@ class PepperState {
 
 		// run the target if neccesary
 		if($run_required) {
-			$result = $this->minion->speck($target, true);
+			$result = $this->minion->invoke($target, true);
 
 			// allow FLAG methods to cancel the bubble
 			$t = $this->minion->task($task);

@@ -100,8 +100,6 @@ API usage
    
 	// you can invoke actions using the task method directly
 	$minion->task('service')->ensure_running('apache2');
-	// or using key dispatch
-	$minion->invoke('service.ensure_running:bind9');
    
 	/**
 	 * optionally you can store the cache for a future run and pass it as the second argument to the constructor
@@ -119,23 +117,17 @@ During a run all values are cached for a time set by the class containing the co
 returned e.g. ``system.hostname`` and ``system.os`` are cached forever but ``system.uptime`` is always re-queried.  
 You can manually expire a cached value by calling ``$minion->cache->delete('system.hostname')`` in the event that you have modified something
 on the system.  As in the above example, the cache can be persisted between sessions which drastically reduces the number of commands
-that need to be executed.
+that need to be executed. ``$minion->cache->clean()`` will remove all session values and ``$minion->cache->data()`` will return an
+array suitable for persisting.
 
-speck() vs invoke()
-===================
-Both functions take a single argument ``key`` in the form ``task.method:arg1:arg2:...`` and will run the method specified with
-the arguments provided, but they differ in how they cache the result.
-
-``speck($key, $ignore_cache=false)`` will return a cached value for a key if possible unless ``$ignore_cache`` is set.
-If no current cache value is available it will execute the method, cache the result and return it.
-
-``invoke($key, $timestamp=null)`` calls the method requested unless there has been a call to the same key since the optional ``$timestamp``.  
-The call will be timestamped in the cache.  This is useful for run-once actions like ``mysql.setup`` or states like ``mysql.ensure_setup``
+In order to take advantage of the caching system you should retrieve information using the ``speck()`` interface and execute
+actions/states using ``invoke()``.  Both methods take a string key as the first argument as described above and an optional
+boolean to bypass the cache.
 
 Tasks
 =====
 
-Tasks can do one of three things:
+Tasks are classes that contain methods relating to a particular area of system management.  The methods can be divided into three types:
 
 * **speck**: Returns a small piece of information about the system.  The method implementation should include a cache time settings and users should
   try to call them using the ``speck()`` interface to take advantage of the caching. Examples are ``system.os`` and ``network.mac:eth0``
@@ -146,3 +138,42 @@ Tasks can do one of three things:
 * **state**: Bring the system to a specific state.  These are more compicated methods that check existing conditions and act accordingly.  By convention they
   should be prefixed with ``ensure_`` e.g. ``service.ensure_running:apache2``.  They can make decisions based on cached values by using ``speck()`` or
   forcing a remote call.
+
+State files
+===========
+
+These are essentially makefiles to manage dependancies for states.  If correct cache settings are used on
+state methods then they can ensure a system stays in the desired state with minimal contact. (Note: some
+tasks are not yet implemented)::
+
+	state.machine:webserver:
+		state.group:ubuntu-lamp
+		# some machine specific stuff
+		apache2.ensure_mod_enabled:userdir
+		git.ensure_deployed:path/to/repo:/var/www/myproject
+	
+	# our generic LAMP setup
+	state.group:ubuntu-lamp
+		service.ready:apache2
+		service.ready:mysql5
+		service.ready:php5
+
+	# a generic rule for services - will be used for apache2
+	service.ready:%
+		pkg.ensure_installed:%1
+		service.ensure_running:%1
+	
+	# override generic rule for mysql5 as the service names are different	
+	service.ready:mysql5
+		pkg.ensure_installed:mysql-server5
+		service.ensure_running:mysql-server
+	
+	# a virtual service
+	service.ready:php5
+		pkg.ensure_installed:apache2-mod-php5
+		pkg.ensure_installed:php5-cli
+		
+You can the load and run this state file with the following command::
+
+	> TODO
+
