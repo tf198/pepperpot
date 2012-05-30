@@ -89,9 +89,6 @@ class Minion {
     // determine cache time for the task
     $expiry = $t->cache_time($method);
     
-    // cache time relative to now
-    if($expiry > 0) $expiry += time();
-    
     // allow tasks to set their own expiry time
     if($expiry == Minion_Cache::CACHE_RETURN) $expiry = (int) $result;
     
@@ -99,45 +96,6 @@ class Minion {
     $this->cache->set($key, $result, $expiry);
     $this->log("speck({$key}): {$expiry}", LOG_DEBUG);
     return $result;
-  }
-  
-  /**
-   * Call a **state** or an **action** method by key
-   * Stores the current timestamp 
-   * @param string $key		action or state key
-   * @param int	$timestamp	skip if has run more recently than this
-   * @return int
-   */
-  /*
-  function invoke($key) {
-  	list($task, $method, $params) = self::parse_uri($key);
-  	$t = $this->task($task);
-  	
-  	$expiry = isset($t->cache_time[$method]) ? $t->cache_time[$method] : Minion_Cache::CACHE_SESSION;
-  	
-  	if($expiry == Minion_Cache::CACHE_RETURN) {
-  		// execute first
-  		$timestamp = (int) call_user_func_array(array($t, $method), $params);
-  	} else {
-  		$timestamp = $this->minion->get_timestamp($key);
-  	}
-  	
-    $result = call_user_func_array(array($t, $method), $params);
-    
-    
-    $this->cache->set($key, $result, time());
-    return $result;
-  }
-  */
-  /**
-   * Get the time of the last invoke(key) call
-   * @param string $key
-   * @return int				time of last run or 0 for unknown
-   */
-  function timestamp($key) {
-  	$expires = $this->cache->get_expiry($key);
-  	if($expires < 0) $expires = 0;
-  	return $expires;
   }
   
   /**

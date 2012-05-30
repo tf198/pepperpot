@@ -44,16 +44,6 @@ class Minion_Cache {
 	}
 
 	/**
-	 * Get the expiry time for a key
-	 * @param string $key
-	 * @return int		expiry time or one of the Minion_Cache::CACHE_X constants
-	 */
-	function get_expiry($key) {
-		if(isset($this->_cache[$key])) return $this->_cache[$key][1];
-		return self::CACHE_MISSING;
-	}
-
-	/**
 	 * Get data from the cache, regardless of expiry time
 	 * @param string $key item key e.g. system.os
 	 * @param mixed  $default default if not set
@@ -78,6 +68,7 @@ class Minion_Cache {
 	 */
 	function set($key, $value, $expiry_time=self::CACHE_SESSION) {
 		if($expiry_time == self::CACHE_NEVER) return;
+		if($expiry_time > 0) $expiry_time += time();
 		$this->_cache[$key] = array($value, $expiry_time);
 	}
 	/**
@@ -105,22 +96,13 @@ class Minion_Cache {
 	}
 
 	/**
-	 * Remove all items
-	 */
-	function clear() {
-		foreach(array_keys($this->_cache) as $key) {
-			if($this->_cache[$key][1] != self::CACHE_PRIVATE) unset($this->_cache[$key]);
-		}
-	}
-
-	/**
 	 * Get a copy of the cache with all the CACHE_PRIVATE data removed
 	 * @return	multitype:array
 	 */
-	function data() {
+	function data($type=self::CACHE_SESSION) {
 		$result = array();
 		foreach($this->_cache as $key=>$value) {
-			if($value[1] > self::CACHE_PRIVATE) $result[$key] = $value;
+			if($value[1] >= $type) $result[$key] = $value;
 		}
 		return $result;
 	}
@@ -131,15 +113,5 @@ class Minion_Cache {
 	 */
 	function keys() {
 		return array_keys($this->_cache);
-	}
-
-	/**
-	 * Allow for serialization
-	 * Warning: sensitive data will be included in the serialized object
-	 * @return multitype:string
-	 */
-	function __sleep() {
-		$this->clean();
-		return array('_cache');
 	}
 }
