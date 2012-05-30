@@ -71,7 +71,7 @@ class Minion {
   /**
    * Get a **speck** by key
    * @param 	string 	$key	item key e.g. system.os
-   * @param		boolean	$ignore_cache	ignore any cached value
+   * @param		boolean	$ignore_cache	ignore any cached value (default: false)
    * @return 	mixed
    */
   function speck($key, $ignore_cache=false) {
@@ -96,6 +96,16 @@ class Minion {
     $this->cache->set($key, $result, $expiry);
     $this->log("speck({$key}): {$expiry}", LOG_DEBUG);
     return $result;
+  }
+  
+  /**
+   * Alias of ``speck()``
+   * Allows code to be more readable for **actions** and **states**
+   * @param string $key				item key e.g. system.kill:901
+   * @param boolean $force			force execution even if cached (default: false)
+   */
+  function invoke($key, $force=false) {
+  	return $this->speck($key, $force);
   }
   
   /**
