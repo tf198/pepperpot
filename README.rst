@@ -1,6 +1,8 @@
 PepperPot
 ---------
 
+**WARNING** Abandonware
+
 Pepperpot is a remote execution and configuration management library written in PHP
 based on the excellent python library SaltStack_.  Much of the task and
 state logic has been ported almost as-is but the underlying transport is completely different.
